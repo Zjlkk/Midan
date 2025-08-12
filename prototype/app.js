@@ -230,7 +230,19 @@ function renderEvents(root) {
     </section>
   `;
 
+  // Skeleton before rendering content
   const grid = document.getElementById("comp-grid");
+  grid.innerHTML = new Array(6).fill(0).map(() => `
+    <article class=\"card\">
+      <div class=\"skel-line skel\" style=\"width:60%\"></div>
+      <div class=\"skel-line skel\" style=\"width:90%\"></div>
+      <div class=\"skel-badge skel\"></div>
+      <div class=\"skel-line skel\" style=\"width:70%\"></div>
+      <div class=\"skel skel-btn\"></div>
+    </article>
+  `).join("");
+
+  // Then render real cards
   grid.innerHTML = events.map(c => renderEventCard(c)).join("");
   wireEventCardFilters();
 
@@ -253,6 +265,7 @@ function renderEventCard(c) {
     c.type==='official' || c.type==='launchpad' ? 'type-green' :
     'type-orange'
   );
+  const icon = c.type==='trade' ? '📈' : c.type==='hackathon' ? '🛠️' : c.type==='official' ? '🏛️' : c.type==='alpha' ? '🔎' : c.type==='launchpad' ? '🚀' : '🎯';
   const tagPills = (c.tags||[]).slice(0,2).map(t=> `<span class=\"tag-pill\" data-type-filter=\"${c.type}\">${t}</span>`).join('');
   const more = (c.tags||[]).length>2 ? `<span class=\"tag-pill\" title=\"More\">+${(c.tags||[]).length-2}</span>`: '';
   return `
@@ -261,7 +274,7 @@ function renderEventCard(c) {
       <div class="subtle">${escapeHtml(c.subtitle)}</div>
       <div class="meta"><span class="badge">${status}</span></div>
       <div class="tag-row">
-        <span class="type-pill ${typeClass}">${labelForType(c.type)}</span>
+        <span class="type-pill ${typeClass}"><span class="icon">${icon}</span>${labelForType(c.type)}</span>
         ${tagPills}${more}
       </div>
       <div class="info-bar">
