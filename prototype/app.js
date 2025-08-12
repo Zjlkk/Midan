@@ -310,7 +310,9 @@ function renderCompetitionOverview(root, cid) {
 
   // Filters data
   const filters = getUIFilters();
-  const teams = filterAndSortTeams(getTeams(cid), filters);
+  const teamsAll = getTeams(cid);
+  const teams = filterAndSortTeams(teamsAll, filters);
+  const totalMembers = teamsAll.reduce((acc,t)=> acc + t.members.length, 0);
 
   root.innerHTML = `
     <section class="team-header">
@@ -325,6 +327,12 @@ function renderCompetitionOverview(root, cid) {
       <div class="header-cta">
         <button class="btn primary" id="ui-create">Create Team</button>
       </div>
+    </section>
+
+    <section class="summary">
+      <div class="item">📋 <strong>${teamsAll.length}</strong> Teams</div>
+      <div class="item">👥 <strong>${totalMembers}</strong> Members</div>
+      <div class="item">⏱️ <strong>${status}</strong></div>
     </section>
 
     <section class="card" style="margin-bottom:12px;">
@@ -371,7 +379,18 @@ function renderCompetitionOverview(root, cid) {
     </article>
   `).join("");
 
-  grid.innerHTML = teams.length ? teams.map(t => renderTeamCard(cid, t)).join("") : `<div class="card"><div class="title">No teams yet</div><div class="subtle">Be the first to create one.</div></div>`;
+  if (teams.length === 0) {
+    grid.innerHTML = `
+      <article class=\"card empty-card\">
+        <svg class=\"empty-illu\" viewBox=\"0 0 120 60\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><rect x=\"2\" y=\"18\" rx=\"8\" ry=\"8\" width=\"116\" height=\"24\" fill=\"#eef2ff\" stroke=\"#e5e7eb\"/><path d=\"M10 30 H110\" stroke=\"#c7d2fe\" stroke-dasharray=\"4 6\" /></svg>
+        <div class=\"title\">No teams yet</div>
+        <div class=\"subtle\">Create the first team and invite others.</div>
+        <div class=\"actions\"><button class=\"btn primary\" id=\"empty-create\">Create Team</button></div>
+      </article>`;
+    document.getElementById('empty-create').addEventListener('click', ()=> document.getElementById('ui-create').click());
+  } else {
+    grid.innerHTML = teams.map(t => renderTeamCard(cid, t)).join("");
+  }
 
   document.getElementById("ui-create").addEventListener("click", () => openCreateModal(cid));
   document.getElementById("flt-joinable").addEventListener("change", () => { setUIFilters({ joinable: document.getElementById("flt-joinable").checked }); render(); });
@@ -380,8 +399,12 @@ function renderCompetitionOverview(root, cid) {
   document.getElementById("search").addEventListener("input", (e) => {
     setUIFilters({ search: e.target.value });
     const teams2 = filterAndSortTeams(getTeams(cid), getUIFilters());
-    grid.innerHTML = teams2.length ? teams2.map(t => renderTeamCard(cid, t)).join("") : `<div class="card"><div class="title">No results</div><div class="subtle">No teams match your filters.</div></div>`;
-    wireCardButtons(cid);
+    if (teams2.length === 0) {
+      grid.innerHTML = `<article class=\"card empty-card\"><div class=\"title\">No results</div><div class=\"subtle\">Try adjusting your filters.</div></article>`;
+    } else {
+      grid.innerHTML = teams2.length ? teams2.map(t => renderTeamCard(cid, t)).join("") : ``;
+      wireCardButtons(cid);
+    }
   });
   wireCardButtons(cid);
 }
