@@ -21,22 +21,57 @@ const state = {
 function seedMock() {
   const now = Date.now();
   state.competitions = [
-    mkEvent("tc-001", "Trading Competition", "Team-based trading volume challenge", now - 2*86_400_000, now + 5*86_400_000, 'competition', ['Trading','DeFi']),
-    mkEvent("qc-002", "Alpha Finding", "Scout narratives and share signals", now - 1*86_400_000, now + 9*86_400_000, 'alpha', ['Research','Infra']),
-    mkEvent("lp-003", "Launchpad — Q4", "Community-driven launch tracks", now + 1*86_400_000, now + 20*86_400_000, 'launchpad', ['Airdrop','Social']),
+    mkEvent(
+      "sonic-trade",
+      "Sonic SVM On‑Chain Trading Competition",
+      "A trading tournament hosted by Sonic SVM with a prize pool of up to $1,000,000. Form a team and climb the leaderboard.",
+      now - 1*86_400_000, now + 14*86_400_000, 'competition', ['Trading','DeFi']
+    ),
+    mkEvent(
+      "sonic-hack",
+      "Sonic SVM Internal Hackathon Grouping",
+      "Team up for the Sonic SVM internal hackathon. Find collaborators and build fast.",
+      now - 2*86_400_000, now + 7*86_400_000, 'quest', ['Hackathon','Builders']
+    ),
+    mkEvent(
+      "goodr-alpha",
+      "Goodr — Alpha Finding",
+      "Scout promising narratives and early signals on the Goodr Launchpad. Share research, validate theses, and surface Alpha.",
+      now - 5*86_400_000, now + 20*86_400_000, 'alpha', ['Launchpad','Research']
+    ),
+    mkEvent(
+      "chaos-group",
+      "Chaos Finance — Official Group",
+      "Join the official Chaos Finance group for AMAs, product updates, and direct Q&A with the team.",
+      now - 3*86_400_000, now + 30*86_400_000, 'quest', ['AMA','Community']
+    ),
+    mkEvent(
+      "chillonic-otc",
+      "Chillonic — OTC Group",
+      "Peer‑to‑peer OTC hub for exchanging Chillonic NFTs. Find counterparties safely and coordinate trades.",
+      now - 2*86_400_000, now + 15*86_400_000, 'quest', ['NFT','OTC']
+    ),
+    mkEvent(
+      "fomoney-gov",
+      "FoMoney — Governance Event",
+      "Back your favorite ticker and participate in governance decisions. Rally a team for coordinated voting.",
+      now + 1*86_400_000, now + 7*86_400_000, 'quest', ['Governance','Voting']
+    ),
   ];
 
-  const teams_tc = [
+  const teams_trade = [
     mkTeam(1, "Alpha Squad", false, 10, [addr("A1"), addr("A2"), addr("A3")], addr("A1"), now - 3600_000),
     mkTeam(2, "Beta Wolves", true, 6, [addr("B1"), addr("B2")], addr("B1"), now - 7200_000, "BETA1234"),
     mkTeam(3, "Gamma Traders", false, 4, [addr("C1"), addr("C2"), addr("C3"), addr("C4")], addr("C1"), now - 86_400_000),
     mkTeam(4, "Delta Focus", true, 8, [addr("D1")], addr("D1"), now - 12_000_000, "DELTA8888"),
   ];
-  const teams_qc = [ mkTeam(11, "Questors", false, 8, [addr("Q1"), addr("Q2")], addr("Q1"), now - 5000) ];
 
-  state.teamsByCompetition.set("tc-001", teams_tc);
-  state.teamsByCompetition.set("qc-002", teams_qc);
-  state.teamsByCompetition.set("lp-003", []);
+  state.teamsByCompetition.set("sonic-trade", teams_trade);
+  state.teamsByCompetition.set("sonic-hack", []);
+  state.teamsByCompetition.set("goodr-alpha", []);
+  state.teamsByCompetition.set("chaos-group", []);
+  state.teamsByCompetition.set("chillonic-otc", []);
+  state.teamsByCompetition.set("fomoney-gov", []);
 }
 
 function mkEvent(id, name, subtitle, startTs, endTs, type, tags) {
