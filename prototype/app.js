@@ -717,7 +717,30 @@ function wireHeader() {
   document.getElementById("btn-my-team").addEventListener("click", () => {
     if (hasAnyMembership()) setHash(`/me/teams`);
   });
+  const ce = document.getElementById('btn-create-event');
+  if (ce) ce.addEventListener('click', () => toggleModal('modal-create-event', true));
   document.querySelectorAll("[data-close-modal]").forEach((el) => { el.addEventListener("click", () => toggleModal(el.getAttribute("data-close-modal"), false)); });
+
+  const form = document.getElementById('form-create-event');
+  if (form) form.onsubmit = (e) => {
+    e.preventDefault();
+    if (!state.user.connected) { showToast('Connect wallet to continue'); return; }
+    const name = document.getElementById('create-evt-name').value.trim();
+    const type = document.getElementById('create-evt-type').value;
+    const subtitle = document.getElementById('create-evt-sub').value.trim();
+    const start = document.getElementById('create-evt-start').value;
+    const end = document.getElementById('create-evt-end').value;
+    if (!name || !subtitle) { showToast('Please fill in required fields'); return; }
+    const id = `${type}-${Math.random().toString(36).slice(2,7)}`;
+    const startTs = start ? new Date(start).getTime() : Date.now();
+    const endTs = end ? new Date(end).getTime() : (Date.now() + 7*86_400_000);
+    const evt = mkEvent(id, name, subtitle, startTs, endTs, type, []);
+    state.competitions.unshift(evt);
+    state.teamsByCompetition.set(id, []);
+    toggleModal('modal-create-event', false);
+    showToast('Event created');
+    render();
+  };
 }
 
 window.addEventListener("hashchange", render);
