@@ -165,10 +165,6 @@ function renderEvents(root) {
               <path class="line fast" d="M10,120 C60,40 170,40 310,120"/>
               <path class="line" d="M10,110 C80,30 190,30 310,110"/>
               <path class="line slow" d="M10,130 C100,50 210,50 310,130"/>
-              <circle class="node" cx="62" cy="84" r="5"/>
-              <circle class="node delay1" cx="146" cy="60" r="5"/>
-              <circle class="node delay2" cx="228" cy="72" r="5"/>
-              <circle class="node delay3" cx="290" cy="118" r="5"/>
             </svg>
             <div class="visual-caption">Live lines, on‑chain sync, team signals</div>
           </div>
