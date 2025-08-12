@@ -157,26 +157,20 @@ function renderEvents(root) {
           <div class="visual">
             <svg width="320" height="160" viewBox="0 0 320 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <defs>
-                <linearGradient id="gBlob" x1="0" y1="0" x2="1" y2="1">
+                <linearGradient id="gStroke" x1="0" y1="0" x2="1" y2="1">
                   <stop offset="0%" stop-color="#6366F1"/>
                   <stop offset="100%" stop-color="#06B6D4"/>
                 </linearGradient>
-                <linearGradient id="gRing" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stop-color="#22C55E"/>
-                  <stop offset="100%" stop-color="#F59E0B"/>
-                </linearGradient>
               </defs>
-              <!-- Blob -->
-              <path d="M110,18 C190,8 270,70 220,120 C185,152 120,160 80,128 C46,102 52,58 110,18 Z" fill="url(#gBlob)" fill-opacity="0.9"/>
-              <!-- Rings -->
-              <circle cx="86" cy="78" r="38" stroke="url(#gRing)" stroke-width="2" fill="none" opacity="0.5"/>
-              <circle cx="86" cy="78" r="24" stroke="#94A3B8" stroke-width="1" fill="none" opacity="0.5"/>
-              <!-- Glass card -->
-              <rect x="186" y="40" rx="12" ry="12" width="118" height="58" fill="#FFFFFF" fill-opacity="0.18" stroke="#E5E7EB"/>
-              <text x="245" y="69" text-anchor="middle" fill="#0F172A" fill-opacity="0.9" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11">Team OS</text>
-              <text x="245" y="85" text-anchor="middle" fill="#334155" fill-opacity="0.9" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="9">On‑chain Teams</text>
+              <path class="line fast" d="M10,120 C60,40 170,40 310,120"/>
+              <path class="line" d="M10,110 C80,30 190,30 310,110"/>
+              <path class="line slow" d="M10,130 C100,50 210,50 310,130"/>
+              <circle class="node" cx="62" cy="84" r="5"/>
+              <circle class="node delay1" cx="146" cy="60" r="5"/>
+              <circle class="node delay2" cx="228" cy="72" r="5"/>
+              <circle class="node delay3" cx="290" cy="118" r="5"/>
             </svg>
-            <div class="visual-caption">On‑chain teams, wallet chat, and group launches</div>
+            <div class="visual-caption">Live lines, on‑chain sync, team signals</div>
           </div>
         </div>
       </div>
@@ -369,7 +363,7 @@ function renderTeamDetail(root, cid, teamId) {
   const shareUrl = `${location.origin}${location.pathname}#${`/competition/${cid}/team/${t.teamId}`}`;
   const shareHtml = isMember ? `
     <section style=\"height:8px\"></section>
-    <section class=\"share\">
+    <section class=\"share\"> 
       <h3>Invite teammates</h3>
       <div class=\"helper\">${t.isPrivate ? 'This link does not include the join code. Share the code separately.' : 'Share this link so anyone can join while spots last.'}</div>
       <div class=\"row\">
@@ -397,24 +391,24 @@ function renderTeamDetail(root, cid, teamId) {
   }
 
   root.innerHTML = `
-    <section class="controls">
-      <button class="btn outline" id="back-overview">← Back</button>
-      <div class="spacer"></div>
+    <section class=\"controls\">
+      <button class=\"btn outline\" id=\"back-overview\">← Back</button>
+      <div class=\"spacer\"></div>
     </section>
-    <section class="team-header">
+    <section class=\"team-header\">
       <div>
         <h2>${escapeHtml(t.name)}</h2>
-        <div class="meta">
+        <div class=\"meta\">
           ${t.isPrivate ? '<span class="badge gray">Private</span>' : '<span class="badge green">Public</span>'}
-          <span class="badge">Members ${t.members.length}/${t.maxMembers}</span>
-          <span class="badge">Captain ${shortAddr(t.captain)}</span>
-          <span class="badge">Team #${t.teamId}</span>
+          <span class=\"badge\">Members ${t.members.length}/${t.maxMembers}</span>
+          <span class=\"badge\">Captain ${shortAddr(t.captain)}</span>
+          <span class=\"badge\">Team #${t.teamId}</span>
         </div>
       </div>
-      <div class="header-cta">${cta}</div>
+      <div class=\"header-cta\">${cta}</div>
     </section>
 
-    <section class="members">
+    <section class=\"members\">
       <h3>Members</h3>
       ${t.members.map(renderMember).join("")}
     </section>
@@ -437,7 +431,7 @@ function renderTeamDetail(root, cid, teamId) {
 function renderMember(m) { return `<div class="member-item"><div class="member-avatar">${m.slice(2,4)}</div><div>${shortAddr(m)}</div></div>`; }
 
 function renderMyTeams(root) {
-  const entries = Object.entries(state.user.memberships); // [ [cid, teamId], ... ]
+  const entries = Object.entries(state.user.memberships);
   const list = entries.map(([cid, teamId]) => {
     const comp = state.competitions.find(c => c.id === cid);
     const team = getTeams(cid).find(t => t.teamId === teamId);
@@ -446,52 +440,58 @@ function renderMyTeams(root) {
   }).filter(Boolean);
 
   root.innerHTML = `
-    <section class="team-header">
+    <section class=\"team-header\">
       <div>
         <h2>My Teams</h2>
-        <div class="subtle">You can have one team per competition. Each entry below is labeled by competition.</div>
+        <div class=\"subtle\">You can have one team per competition. Each entry below is labeled by competition.</div>
       </div>
-      <div class="header-cta">
-        <button class="btn outline" id="back-all">← All Competitions</button>
+      <div class=\"header-cta\">
+        <button class=\"btn outline\" id=\"back-all\">← Explore Events</button>
       </div>
     </section>
     <section>
-      <div class="card-grid" id="myteams-grid"></div>
+      <div class=\"card-grid\" id=\"myteams-grid\"></div>
     </section>
   `;
 
-  document.getElementById("back-all").addEventListener("click", () => setHash("/competitions"));
+  document.getElementById("back-all").addEventListener("click", () => setHash("/events"));
 
   const grid = document.getElementById("myteams-grid");
   if (list.length === 0) {
-    grid.innerHTML = `<article class="card"><div class="title">No teams yet</div><div class="subtle">Join or create a team from a competition page.</div></article>`;
+    grid.innerHTML = `<article class=\"card\"><div class=\"title\">No teams yet</div><div class=\"subtle\">Join or create a team from an event page.</div></article>`;
     return;
   }
   grid.innerHTML = list.map(({ cid, comp, team }) => `
-    <article class="card">
-      <div class="title">${escapeHtml(team.name)}</div>
-      <div class="meta">
-        <span class="badge">Competition: ${escapeHtml(comp.name)}</span>
+    <article class=\"card\">
+      <div class=\"title\">${escapeHtml(team.name)}</div>
+      <div class=\"meta\">
+        <span class=\"badge\">Event: ${escapeHtml(comp.name)}</span>
         ${team.isPrivate ? '<span class="badge gray">Private</span>' : '<span class="badge green">Public</span>'}
-        <span class="badge">Members ${team.members.length}/${team.maxMembers}</span>
+        <span class=\"badge\">Members ${team.members.length}/${team.maxMembers}</span>
       </div>
-      <div class="actions">
-        <button class="btn primary" data-open-team="${cid}:${team.teamId}">View team</button>
+      <div class=\"actions\">
+        <button class=\"btn primary\" data-open-team=\"${cid}:${team.teamId}\">View team</button>
       </div>
     </article>
   `).join("");
 
   document.querySelectorAll('[data-open-team]').forEach((el) => {
     el.addEventListener('click', () => {
-      const [cid, teamIdStr] = el.getAttribute('data-open-team').split(':');
-      setHash(`/competition/${cid}/team/${Number(teamIdStr)}`);
+      const [cid2, teamIdStr] = el.getAttribute('data-open-team').split(':');
+      setHash(`/competition/${cid2}/team/${Number(teamIdStr)}`);
     });
   });
 }
 
 function getUIFilters() {
   const url = new URL(window.location.href);
-  return { joinable: url.searchParams.get("joinable") === "1" || false, publicOnly: url.searchParams.get("public") === "1" || false, privateOnly: url.searchParams.get("private") === "1" || false, search: url.searchParams.get("q") || "", tag: url.searchParams.get("tag") || "all" };
+  return {
+    joinable: url.searchParams.get("joinable") === "1" || false,
+    publicOnly: url.searchParams.get("public") === "1" || false,
+    privateOnly: url.searchParams.get("private") === "1" || false,
+    search: url.searchParams.get("q") || "",
+    tag: url.searchParams.get("tag") || "all"
+  };
 }
 function setUIFilters(delta) {
   const url = new URL(window.location.href); const params = url.searchParams;
@@ -590,4 +590,4 @@ window.addEventListener("hashchange", render);
 // Init
 seedMock();
 wireHeader();
-render(); 
+render();
