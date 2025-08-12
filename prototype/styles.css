@@ -228,3 +228,24 @@ h1, h2, h3 { margin: 0 0 12px; }
 
 /* Inputs focus already unified; ensure select/input heights match */
 .filters-bar .search input, select.btn { height: 36px; } 
+
+/* Event card cover */
+.card .cover { width: 100%; aspect-ratio: 16/9; border-radius: 12px; border: 1px solid #e6eaf2; background: linear-gradient(180deg, #f8fbff, #f2f6ff); box-shadow: inset 0 1px 0 rgba(255,255,255,0.8); }
+.card .cover.blue { background: linear-gradient(180deg, rgba(59,130,246,0.12), rgba(147,197,253,0.12)); }
+.card .cover.purple { background: linear-gradient(180deg, rgba(124,58,237,0.12), rgba(196,181,253,0.12)); }
+.card .cover.green { background: linear-gradient(180deg, rgba(34,197,94,0.12), rgba(134,239,172,0.12)); }
+.card .cover.orange { background: linear-gradient(180deg, rgba(245,158,11,0.12), rgba(253,213,128,0.12)); }
+
+/* Hairline utility */
+.hairline { border-top: 1px solid #eaeef5; margin: 12px 0; }
+
+/* Responsive: fold filters bar and inputs on narrow screens */
+@media (max-width: 720px) {
+  .filters-bar { top: 56px; padding: 6px 0; }
+  .filters-bar { gap: 8px; }
+  .filters-bar .search input { min-width: 0; width: 100%; }
+  .filters-bar > div { flex: 1 1 48%; }
+  .filters-bar select.btn { width: 100%; }
+  .chip { padding: 4px 8px; font-size: 12px; }
+  .card-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+} 

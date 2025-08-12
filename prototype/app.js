@@ -286,6 +286,12 @@ function renderEventCard(c) {
     c.type==='official' || c.type==='launchpad' ? 'type-green' :
     'type-orange'
   );
+  const coverClass = (
+    c.type==='trade' || c.type==='competition' ? 'blue' :
+    c.type==='hackathon' || c.type==='alpha' ? 'purple' :
+    c.type==='official' || c.type==='launchpad' ? 'green' :
+    'orange'
+  );
   const icon = c.type==='trade' ? '📈' : c.type==='hackathon' ? '🛠️' : c.type==='official' ? '🏛️' : c.type==='alpha' ? '🔎' : c.type==='launchpad' ? '🚀' : '🎯';
   const teams = getTeams(c.id);
   const teamCount = teams.length;
@@ -294,13 +300,15 @@ function renderEventCard(c) {
   const more = (c.tags||[]).length>2 ? `<span class=\"tag-pill\" title=\"More\">+${(c.tags||[]).length-2}</span>`: '';
   return `
     <article class="card">
-      <div class="title">${escapeHtml(c.name)}</div>
+      <div class="cover ${coverClass}"></div>
+      <div class="title" style="margin-top:10px;">${escapeHtml(c.name)}</div>
       <div class="subtle">${escapeHtml(c.subtitle)}</div>
       <div class="meta"><span class="badge">${status}</span></div>
       <div class="tag-row">
         <span class="type-pill ${typeClass}"><span class="icon">${icon}</span>${labelForType(c.type)}</span>
         ${tagPills}${more}
       </div>
+      <div class="hairline"></div>
       <div class="info-bar">
         <span>${new Date(c.startTs).toLocaleDateString()} – ${new Date(c.endTs).toLocaleDateString()}</span>
         <span>Teams: ${teamCount} · Members: ${memberCount}</span>
