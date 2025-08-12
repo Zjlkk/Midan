@@ -60,10 +60,10 @@ function seedMock() {
   ];
 
   const teams_trade = [
-    mkTeam(1, "Alpha Squad", false, 10, [addr("A1"), addr("A2"), addr("A3")], addr("A1"), now - 3600_000),
-    mkTeam(2, "Beta Wolves", true, 6, [addr("B1"), addr("B2")], addr("B1"), now - 7200_000, "BETA1234"),
-    mkTeam(3, "Gamma Traders", false, 4, [addr("C1"), addr("C2"), addr("C3"), addr("C4")], addr("C1"), now - 86_400_000),
-    mkTeam(4, "Delta Focus", true, 8, [addr("D1")], addr("D1"), now - 12_000_000, "DELTA8888"),
+    mkTeam(1, "Alpha Squad", false, 10, [addr("A1"), addr("A2"), addr("A3")], addr("A1"), now - 3600_000, null, "High‑frequency strategy experiments and cross‑venue market making. Daily PnL reviews and fast iteration."),
+    mkTeam(2, "Beta Wolves", true, 6, [addr("B1"), addr("B2")], addr("B1"), now - 7200_000, "BETA1234", "Private quant pod focused on momentum and breakout systems. Invite‑only; share code and risk rules."),
+    mkTeam(3, "Gamma Traders", false, 4, [addr("C1"), addr("C2"), addr("C3"), addr("C4")], addr("C1"), now - 86_400_000, null, "Discretionary team tracking catalysts and narrative rotations across the Sonic ecosystem."),
+    mkTeam(4, "Delta Focus", true, 8, [addr("D1")], addr("D1"), now - 12_000_000, "DELTA8888", "Options and basis desk optimizing funding and carry. Calm risk, steady edge."),
   ];
 
   state.teamsByCompetition.set("sonic-trade", teams_trade);
