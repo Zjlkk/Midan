@@ -712,6 +712,18 @@ function toggleModal(id, show) { const m = document.getElementById(id); if (!m) 
 function escapeHtml(str) { return str.replace(/[&<>"]+/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c] )); }
 
 // Header buttons
+function openCreateEventModal() {
+  const modalId = 'modal-create-event';
+  toggleModal(modalId, true);
+  const form = document.getElementById('form-create-event');
+  if (!form) return;
+  const capField = document.getElementById('cap-field');
+  const capInput = document.getElementById('create-evt-cap');
+  const isFixed = (form.querySelector('input[name="cap"]:checked')?.value === 'fixed');
+  if (capField) capField.hidden = !isFixed;
+  if (capInput) capInput.required = !!isFixed;
+}
+
 function wireHeader() {
   document.getElementById("nav-home").addEventListener("click", () => setHash("/events"));
   document.getElementById("btn-connect").addEventListener("click", connectWallet);
@@ -719,23 +731,27 @@ function wireHeader() {
     if (hasAnyMembership()) setHash(`/me/teams`);
   });
   const ce = document.getElementById('btn-create-event');
-  if (ce) ce.addEventListener('click', () => toggleModal('modal-create-event', true));
+  if (ce) ce.addEventListener('click', openCreateEventModal);
   document.querySelectorAll("[data-close-modal]").forEach((el) => { el.addEventListener("click", () => toggleModal(el.getAttribute("data-close-modal"), false)); });
 
   const form = document.getElementById('form-create-event');
   if (form) {
     const capRadios = form.querySelectorAll('input[name="cap"]');
     const capField = document.getElementById('cap-field');
-    capRadios.forEach(r => r.addEventListener('change', ()=> { const fixed = form.querySelector('input[name="cap"]:checked').value === 'fixed'; capField.hidden = !fixed; }));
+    const capInput = document.getElementById('create-evt-cap');
+    const syncCap = ()=> { const fixed = form.querySelector('input[name="cap"]:checked')?.value === 'fixed'; if (capField) capField.hidden = !fixed; if (capInput) capInput.required = fixed; };
+    capRadios.forEach(r => r.addEventListener('change', syncCap));
+    syncCap();
     // Local banner file handling
     let bannerObjectUrl = '';
     const bannerInput = document.getElementById('create-evt-banner');
     if (bannerInput) {
       bannerInput.addEventListener('change', (e) => {
         const f = bannerInput.files && bannerInput.files[0];
-        if (!f) { if (bannerObjectUrl) URL.revokeObjectURL(bannerObjectUrl); bannerObjectUrl=''; return; }
+        if (!f) { if (bannerObjectUrl) URL.revokeObjectURL(bannerObjectUrl); bannerObjectUrl=''; window._evtBannerObjectUrl=''; return; }
         if (bannerObjectUrl) URL.revokeObjectURL(bannerObjectUrl);
         bannerObjectUrl = URL.createObjectURL(f);
+        window._evtBannerObjectUrl = bannerObjectUrl;
       });
     }
     form.onsubmit = (e) => {
@@ -755,7 +771,7 @@ function wireHeader() {
       const startTs = start ? new Date(start).getTime() : Date.now();
       const endTs = end ? new Date(end).getTime() : (Date.now() + 7*86_400_000);
       const evt = mkEvent(id, name, subtitle, startTs, endTs, type, tagArr);
-      if (bannerObjectUrl) evt.banner = bannerObjectUrl;
+      if (window._evtBannerObjectUrl) evt.banner = window._evtBannerObjectUrl; // fallback if set globally
       if (capMode === 'fixed') evt.teamCap = Math.max(1, Number(capNumRaw||'0'));
       state.competitions.unshift(evt);
       state.teamsByCompetition.set(id, []);
