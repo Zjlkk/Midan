@@ -211,3 +211,20 @@ h1, h2, h3 { margin: 0 0 12px; }
 
 /* Skeleton avatar */
 .skel-avatar { width: 22px; height: 22px; border-radius: 999px; } 
+
+/* Sticky filters bar with blur */
+.filters-bar { position: sticky; top: 64px; z-index: 12; background: rgba(255,255,255,0.85); backdrop-filter: saturate(180%) blur(10px); border-bottom: 1px solid #eaeef5; padding: 8px 0; margin: 10px 0 12px; }
+
+/* Small link-like button */
+.btn.link { background: transparent; border-color: transparent; color: #2563eb; padding: 0 4px; min-height: unset; height: auto; }
+.btn.link:hover { text-decoration: underline; box-shadow: none; }
+
+/* Card hover highlight */
+.card:hover::after { box-shadow: inset 0 1px 0 rgba(255,255,255,0.75), inset 0 0 0 1px #e6eaf2; }
+
+/* Tag hover */
+.card .tag-pill:hover { background: #f8fafc; border-color: #cbd5e1; }
+.card .type-pill:hover { filter: brightness(1.02); }
+
+/* Inputs focus already unified; ensure select/input heights match */
+.filters-bar .search input, select.btn { height: 36px; } 

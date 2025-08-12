@@ -638,6 +638,7 @@ function openCreateModal(cid) {
   const radios = document.querySelectorAll('input[name="privacy"]');
   const codeField = document.getElementById("create-code-field");
   radios.forEach(r => r.addEventListener('change', () => { const isPrivate = document.querySelector('input[name="privacy"]:checked').value === 'private'; codeField.hidden = !isPrivate; }));
+  const desc = document.getElementById('create-desc'); const counter = document.getElementById('desc-count'); if (desc && counter) { const upd = ()=> counter.textContent = String(desc.value.length); upd(); desc.addEventListener('input', upd); }
   document.getElementById("form-create-team").onsubmit = (e) => {
     e.preventDefault();
     const name = document.getElementById("create-name").value.trim();
