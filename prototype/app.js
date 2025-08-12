@@ -81,8 +81,8 @@ function mkEvent(id, name, subtitle, startTs, endTs, type, tags) {
 function getTeams(cid) { return state.teamsByCompetition.get(cid) || []; }
 function setTeams(cid, teams) { state.teamsByCompetition.set(cid, teams); }
 
-function mkTeam(id, name, isPrivate, maxMembers, members, captain, createdAt, joinCode) {
-  return { teamId: id, name, isPrivate, maxMembers, members: [...members], captain, createdAt, joinCode: isPrivate ? (joinCode || "SECRET123") : null };
+function mkTeam(id, name, isPrivate, maxMembers, members, captain, createdAt, joinCode, description) {
+  return { teamId: id, name, description: description || "", isPrivate, maxMembers, members: [...members], captain, createdAt, joinCode: isPrivate ? (joinCode || "SECRET123") : null };
 }
 
 function addr(seed) { return `0x${seed}${"0".repeat(Math.max(0, 38 - String(seed).length))}`; }
@@ -372,6 +372,7 @@ function renderTeamCard(cid, t) {
   return `
     <article class="card" data-team-id="${t.teamId}">
       <div class="title">${escapeHtml(t.name)}</div>
+      <div class="subtle">${escapeHtml(t.description || '')}</div>
       <div class="meta">
         ${privacy}
         <span class="badge">Members ${t.members.length}/${t.maxMembers}</span>
@@ -446,6 +447,7 @@ function renderTeamDetail(root, cid, teamId) {
     <section class=\"team-header\">
       <div>
         <h2>${escapeHtml(t.name)}</h2>
+        <p class=\"subtle\" style=\"margin-top:6px\">${escapeHtml(t.description || '')}</p>
         <div class=\"meta\">
           ${t.isPrivate ? '<span class="badge gray">Private</span>' : '<span class="badge green">Public</span>'}
           <span class=\"badge\">Members ${t.members.length}/${t.maxMembers}</span>
@@ -573,15 +575,17 @@ function openCreateModal(cid) {
   document.getElementById("form-create-team").onsubmit = (e) => {
     e.preventDefault();
     const name = document.getElementById("create-name").value.trim();
+    const description = document.getElementById("create-desc").value.trim();
     const privacy = document.querySelector('input[name="privacy"]:checked').value; const isPrivate = privacy === 'private';
     const code = document.getElementById("create-code").value.trim();
     const max = Number(document.getElementById("create-max").value);
     if (!name) { showToast("Please enter a team name"); return; }
+    if (description.length < 10) { showToast("Description must be at least 10 characters"); return; }
     if (isPrivate && (code.length < 8 || code.length > 12)) { showToast("Join code must be 8–12 chars"); return; }
     if (max < 3 || max > 50) { showToast("Members limit must be between 3 and 50"); return; }
     const id = state.nextTeamId++;
     const captain = state.user.address;
-    const t = mkTeam(id, name, isPrivate, max, [captain], captain, Date.now(), isPrivate ? code : null);
+    const t = mkTeam(id, name, isPrivate, max, [captain], captain, Date.now(), isPrivate ? code : null, description);
     const list = getTeams(cid); list.unshift(t); setTeams(cid, list);
     state.user.memberships[cid] = id;
     toggleModal("modal-create", false);

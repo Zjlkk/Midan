@@ -86,6 +86,7 @@ h1, h2, h3 { margin: 0 0 12px; }
 .segmented { display: inline-flex; gap: 16px; }
 .field { display: grid; gap: 6px; margin: 10px 0; }
 .field input[type="text"], .field input[type="number"] { padding: 10px 12px; border-radius: 10px; border: 1px solid #e2e8f0; }
+.field textarea { padding: 10px 12px; border-radius: 10px; border: 1px solid #e2e8f0; resize: vertical; }
 .field small.hint { color: #64748b; }
 
 .kv { display: grid; grid-template-columns: 140px 1fr; gap: 8px; align-items: center; }
