@@ -720,8 +720,8 @@ function openCreateEventModal() {
   const capField = document.getElementById('cap-field');
   const capInput = document.getElementById('create-evt-cap');
   const isFixed = (form.querySelector('input[name="cap"]:checked')?.value === 'fixed');
-  if (capField) capField.hidden = !isFixed;
-  if (capInput) capInput.required = !!isFixed;
+  if (capField) { capField.hidden = !isFixed; capField.style.display = isFixed ? '' : 'none'; }
+  if (capInput) { capInput.required = !!isFixed; if (!isFixed) capInput.value = ''; }
 }
 
 function wireHeader() {
@@ -739,8 +739,9 @@ function wireHeader() {
     const capRadios = form.querySelectorAll('input[name="cap"]');
     const capField = document.getElementById('cap-field');
     const capInput = document.getElementById('create-evt-cap');
-    const syncCap = ()=> { const fixed = form.querySelector('input[name="cap"]:checked')?.value === 'fixed'; if (capField) capField.hidden = !fixed; if (capInput) capInput.required = fixed; };
-    capRadios.forEach(r => r.addEventListener('change', syncCap));
+    const syncCap = ()=> { const fixed = form.querySelector('input[name="cap"]:checked')?.value === 'fixed'; if (capField) { capField.hidden = !fixed; capField.style.display = fixed ? '' : 'none'; } if (capInput) { capInput.required = fixed; if (!fixed) capInput.value = ''; } };
+    capRadios.forEach(r => { r.addEventListener('change', syncCap); r.addEventListener('click', syncCap); });
+    // Initial sync so default selection applies
     syncCap();
     // Local banner file handling
     let bannerObjectUrl = '';
