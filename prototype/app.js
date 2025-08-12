@@ -145,20 +145,16 @@ function renderEvents(root) {
     <section class="intro">
       <div class="intro-grid">
         <div>
-          <h2>Midan — On‑chain Events, Teams, and Chat</h2>
-          <div class="subtitle">Spin up fully on‑chain events, form teams instantly, and collaborate in wallet‑native chat. Build communities around competitions, alpha finding, launches, and quests.</div>
+          <h2>Midan — On‑chain Arena for Teams</h2>
+          <div class="subtitle">A social, team‑first hub where you create events, form teams, chat natively by wallet, and launch on‑chain assets together.</div>
           <div class="bullets">
-            <div class="item">✅ On‑chain by default</div>
-            <div class="item">👥 Team‑first</div>
-            <div class="item">💬 Wallet‑native chat</div>
-          </div>
-          <div class="actions">
-            <button class="btn primary" id="intro-explore">Explore Events</button>
-            <button class="btn outline" id="intro-how">How it works</button>
+            <div class="item">✅ On‑chain events & membership</div>
+            <div class="item">👥 Team chat & collaboration</div>
+            <div class="item">🚀 Group launches made simple</div>
           </div>
         </div>
         <div>
-          <svg width="260" height="120" viewBox="0 0 260 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <svg width="300" height="120" viewBox="0 0 260 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <defs>
               <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
                 <stop offset="0%" stop-color="#6366F1"/>
@@ -191,7 +187,7 @@ function renderEvents(root) {
       </div>
       <div>
         <select id="flt-type" class="btn outline" style="padding:8px 10px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:#0f172a;">
-          ${renderTypeOption('', 'Type: All', f.type)}
+          ${renderTypeOption('', 'Event Type: All', f.type)}
           ${renderTypeOption('alpha','Alpha Finding', f.type)}
           ${renderTypeOption('competition','Competition', f.type)}
           ${renderTypeOption('launchpad','Launchpad', f.type)}
@@ -213,9 +209,6 @@ function renderEvents(root) {
       <div class="card-grid" id="comp-grid"></div>
     </section>
   `;
-
-  document.getElementById('intro-explore').addEventListener('click', ()=> window.scrollTo({top: document.querySelector('.filters-bar').offsetTop - 8, behavior:'smooth'}));
-  document.getElementById('intro-how').addEventListener('click', ()=> showToast('Coming soon'));
 
   const grid = document.getElementById("comp-grid");
   grid.innerHTML = events.map(c => renderEventCard(c)).join("");
