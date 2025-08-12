@@ -233,6 +233,7 @@ function renderEvents(root) {
         </select>
       </div>
       <div class="spacer"></div>
+      <div class="clear-link" id="clear-filters-link">Clear Filters</div>
     </section>
 
     <section>
@@ -272,6 +273,7 @@ function renderEvents(root) {
   document.getElementById('flt-all').addEventListener('click', ()=> { writeEventFilters({ type: '', status: '' }); render(); });
   document.getElementById('flt-type').addEventListener('change', (e)=> { writeEventFilters({ type: e.target.value }); render(); });
   document.getElementById('flt-status').addEventListener('change', (e)=> { writeEventFilters({ status: e.target.value }); render(); });
+  document.getElementById('clear-filters-link').addEventListener('click', ()=> { writeEventFilters({ type:'', status:'', search:'' }); render(); });
 }
 
 function renderTypeOption(value, label, selected){ return `<option value="${value}" ${selected===value?'selected':''}>${label}</option>`; }
@@ -301,7 +303,7 @@ function renderEventCard(c) {
   return `
     <article class="card">
       <div class="cover ${coverClass}"></div>
-      <div class="title" style="margin-top:10px;">${escapeHtml(c.name)}</div>
+      <div class="title" style="margin-top:10px;" title="${escapeHtml(c.name)}">${escapeHtml(c.name)}</div>
       <div class="subtle">${escapeHtml(c.subtitle)}</div>
       <div class="meta"><span class="badge">${status}</span></div>
       <div class="tag-row">
@@ -454,7 +456,7 @@ function renderTeamCard(cid, t) {
   const more = t.members.length > 4 ? `<span class=\"more\">+${t.members.length-4}</span>` : '';
   return `
     <article class="card" data-team-id="${t.teamId}">
-      <div class="title">${escapeHtml(t.name)}</div>
+      <div class="title" title="${escapeHtml(t.name)}">${escapeHtml(t.name)}</div>
       <div class="subtle">${escapeHtml(t.description || '')}</div>
       <div class="meta">
         ${privacy}

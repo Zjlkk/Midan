@@ -249,3 +249,14 @@ h1, h2, h3 { margin: 0 0 12px; }
   .chip { padding: 4px 8px; font-size: 12px; }
   .card-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
 } 
+
+/* Team detail hairlines */
+.team-header + .members { margin-top: 8px; }
+.members + .share, .share + .embed { margin-top: 12px; }
+.members, .share, .embed { position: relative; }
+.members::before, .share::before, .embed::before { content: ""; position: absolute; top: -12px; left: 0; right: 0; height: 1px; background: #eaeef5; border-radius: 1px; }
+
+/* Clear filters link alignment */
+.filters-bar .spacer { flex: 1; }
+.filters-bar .clear-link { color: #2563eb; font-weight: 600; cursor: pointer; }
+.filters-bar .clear-link:hover { text-decoration: underline; } 
