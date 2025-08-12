@@ -154,28 +154,30 @@ function renderEvents(root) {
           </div>
         </div>
         <div>
-          <svg width="300" height="120" viewBox="0 0 260 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <defs>
-              <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#6366F1"/>
-                <stop offset="100%" stop-color="#06B6D4"/>
-              </linearGradient>
-              <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#22C55E"/>
-                <stop offset="100%" stop-color="#F59E0B"/>
-              </linearGradient>
-            </defs>
-            <g opacity="0.9">
-              <path d="M20,90 C70,20 190,20 240,90" stroke="url(#g1)" stroke-width="2" fill="none" opacity="0.6"/>
-              <path d="M40,95 C90,45 170,45 220,95" stroke="url(#g2)" stroke-width="2" fill="none" opacity="0.6"/>
-              <circle cx="40" cy="95" r="6" fill="#111827" stroke="#CBD5E1" />
-              <circle cx="90" cy="45" r="6" fill="#111827" stroke="#CBD5E1" />
-              <circle cx="170" cy="45" r="6" fill="#111827" stroke="#CBD5E1" />
-              <circle cx="220" cy="95" r="6" fill="#111827" stroke="#CBD5E1" />
-              <rect x="98" y="70" rx="10" ry="10" width="64" height="22" fill="#111827" stroke="#D1D5DB"/>
-              <text x="130" y="85" text-anchor="middle" fill="#E5E7EB" font-family="Inter, sans-serif" font-size="10">On‑chain Event</text>
-            </g>
-          </svg>
+          <div class="visual">
+            <svg width="320" height="160" viewBox="0 0 320 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <defs>
+                <linearGradient id="gBlob" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#6366F1"/>
+                  <stop offset="100%" stop-color="#06B6D4"/>
+                </linearGradient>
+                <linearGradient id="gRing" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#22C55E"/>
+                  <stop offset="100%" stop-color="#F59E0B"/>
+                </linearGradient>
+              </defs>
+              <!-- Blob -->
+              <path d="M110,18 C190,8 270,70 220,120 C185,152 120,160 80,128 C46,102 52,58 110,18 Z" fill="url(#gBlob)" fill-opacity="0.9"/>
+              <!-- Rings -->
+              <circle cx="86" cy="78" r="38" stroke="url(#gRing)" stroke-width="2" fill="none" opacity="0.5"/>
+              <circle cx="86" cy="78" r="24" stroke="#94A3B8" stroke-width="1" fill="none" opacity="0.5"/>
+              <!-- Glass card -->
+              <rect x="186" y="40" rx="12" ry="12" width="118" height="58" fill="#FFFFFF" fill-opacity="0.18" stroke="#E5E7EB"/>
+              <text x="245" y="69" text-anchor="middle" fill="#0F172A" fill-opacity="0.9" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="11">Team OS</text>
+              <text x="245" y="85" text-anchor="middle" fill="#334155" fill-opacity="0.9" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="9">On‑chain Teams</text>
+            </svg>
+            <div class="visual-caption">On‑chain teams, wallet chat, and group launches</div>
+          </div>
         </div>
       </div>
     </section>

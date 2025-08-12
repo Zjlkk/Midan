@@ -123,7 +123,7 @@ h1, h2, h3 { margin: 0 0 12px; }
   var(--bg-surface);
   border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 12px; position: relative; overflow: hidden; }
 .intro::before { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/></filter><rect width="100" height="100" filter="url(%23n)" opacity="0.03"/></svg>'); }
-.intro-grid { display: grid; grid-template-columns: 1fr 300px; gap: 14px; align-items: center; }
+.intro-grid { display: grid; grid-template-columns: 1fr 340px; gap: 14px; align-items: center; }
 .intro h2 { margin: 0 0 6px; font-size: 20px; }
 .intro .subtitle { color: #475569; margin-bottom: 8px; }
 .intro .bullets { display: flex; gap: 12px; flex-wrap: wrap; color: #334155; font-size: 14px; }
@@ -149,3 +149,6 @@ h1, h2, h3 { margin: 0 0 12px; }
 .card .type-green { background: #16a34a; }
 .card .type-orange { background: #f59e0b; }
 .card .tag-pill { font-size: 12px; padding: 2px 8px; border-radius: 999px; border: 1px solid #cbd5e1; color: #334155; background: #fff; cursor: pointer; } 
+
+.visual { display: grid; justify-items: center; gap: 6px; }
+.visual-caption { font-size: 12px; color: #334155; text-align: center; } 
