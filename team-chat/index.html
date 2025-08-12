@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Midan Arena Chat — Prototype</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="container header-inner">
+        <div class="brand">
+          <span class="brand-logo">💬</span>
+          <div class="brand-text">
+            <div class="brand-name">Midan Arena Chat</div>
+            <div class="brand-sub">Wallet-based team chat (prototype)</div>
+          </div>
+        </div>
+        <nav class="nav-actions">
+          <button id="btn-connect" class="btn outline">Connect Wallet</button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container" id="app-root" aria-live="polite"></main>
+
+    <footer class="app-footer">
+      <div class="container footer-inner">
+        <span>Prototype • UX only • No backend • Messages are in-memory</span>
+      </div>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html> 

@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "name": "midan",
+  "routes": [
+    { "src": "/", "dest": "/prototype/index.html" },
+    { "src": "/prototype/(.*)", "dest": "/prototype/$1" },
+    { "src": "/team-chat/(.*)", "dest": "/team-chat/$1" }
+  ]
+} 

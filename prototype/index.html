@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Team Trading Competition — Prototype</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="container header-inner">
+        <div class="brand" role="button" tabindex="0" id="nav-home">
+          <span class="brand-logo">⚡</span>
+          <div class="brand-text">
+            <div class="brand-name">Midan</div>
+            <div class="brand-sub">on Sonic SVM</div>
+          </div>
+        </div>
+        <nav class="nav-actions">
+          <button id="btn-my-team" class="btn secondary">My Team</button>
+          <button id="btn-connect" class="btn outline">Connect Wallet</button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container" id="app-root" aria-live="polite"></main>
+
+    <footer class="app-footer">
+      <div class="container footer-inner">
+        <span>Prototype • MVP UX only • No blockchain</span>
+      </div>
+    </footer>
+
+    <!-- Create Team Modal -->
+    <div id="modal-create" class="modal" aria-hidden="true" role="dialog" aria-modal="true">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3>Create Team</h3>
+          <button class="icon-btn" data-close-modal="modal-create" aria-label="Close">✕</button>
+        </div>
+        <div class="modal-body">
+          <form id="form-create-team" autocomplete="off">
+            <label class="field">
+              <span>Team Name</span>
+              <input type="text" id="create-name" placeholder="e.g., Alpha Squad" required maxlength="48" />
+            </label>
+            <label class="field">
+              <span>Privacy</span>
+              <div class="segmented">
+                <label><input type="radio" name="privacy" value="public" checked /> Public</label>
+                <label><input type="radio" name="privacy" value="private" /> Private</label>
+              </div>
+            </label>
+            <label class="field" id="create-code-field" hidden>
+              <span>Join Code (8–12 chars)</span>
+              <input type="text" id="create-code" minlength="8" maxlength="12" placeholder="Required for Private" />
+              <small class="hint">Share this code out-of-band. It will not be included in links.</small>
+            </label>
+            <label class="field">
+              <span>Max Members</span>
+              <input type="number" id="create-max" min="3" max="50" value="10" />
+            </label>
+            <div class="form-note">
+              Creating a team makes you the Captain and joins you to the team immediately.
+            </div>
+            <div class="modal-actions">
+              <button type="button" class="btn" data-close-modal="modal-create">Cancel</button>
+              <button type="submit" class="btn primary">Create Team</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Join Private Modal -->
+    <div id="modal-join" class="modal" aria-hidden="true" role="dialog" aria-modal="true">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3>Join Private Team</h3>
+          <button class="icon-btn" data-close-modal="modal-join" aria-label="Close">✕</button>
+        </div>
+        <div class="modal-body">
+          <form id="form-join-private" autocomplete="off">
+            <p class="subtle">Enter the team’s join code.</p>
+            <label class="field">
+              <span>Join Code (8–12 chars)</span>
+              <input type="text" id="join-code" minlength="8" maxlength="12" required />
+            </label>
+            <div class="modal-actions">
+              <button type="button" class="btn" data-close-modal="modal-join">Cancel</button>
+              <button type="submit" class="btn primary">Join Team</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script src="app.js"></script>
+  </body>
+</html> 
