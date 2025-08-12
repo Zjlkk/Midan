@@ -123,6 +123,27 @@
               <span>About (Subtitle)</span>
               <textarea id="create-evt-sub" rows="3" placeholder="One sentence intro for the event" required minlength="10" maxlength="200"></textarea>
             </label>
+            <label class="field">
+              <span>Banner (URL)</span>
+              <input type="url" id="create-evt-banner" placeholder="https://..." />
+              <small class="hint">Optional. Paste an image URL. Preview shown if valid.</small>
+            </label>
+            <div class="field">
+              <span>Team Capacity</span>
+              <div class="segmented">
+                <label><input type="radio" name="cap" value="unlimited" checked /> Unlimited</label>
+                <label><input type="radio" name="cap" value="fixed" /> Fixed</label>
+              </div>
+              <div id="cap-field" class="field" hidden>
+                <input type="number" id="create-evt-cap" min="1" max="9999" placeholder="Max teams" />
+                <small class="hint">If fixed, enter a positive number.</small>
+              </div>
+            </div>
+            <label class="field">
+              <span>Tags (up to 2)</span>
+              <input type="text" id="create-evt-tags" placeholder="e.g., AMA, Research" />
+              <small class="hint">Comma‑separated, up to 2 keywords.</small>
+            </label>
             <div class="segmented" style="gap:10px; flex-wrap:wrap; margin: 10px 0;">
               <label class="field" style="min-width:220px;">
                 <span>Start Date</span>

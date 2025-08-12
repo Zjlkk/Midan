@@ -296,9 +296,10 @@ function renderEventCard(c) {
   const memberCount = teams.reduce((acc,t)=> acc + t.members.length, 0);
   const tagPills = (c.tags||[]).slice(0,2).map(t=> `<span class=\"tag-pill\" data-type-filter=\"${c.type}\">${t}</span>`).join('');
   const more = (c.tags||[]).length>2 ? `<span class=\"tag-pill\" title=\"More\">+${(c.tags||[]).length-2}</span>`: '';
+  const coverHtml = c.banner ? `<div class=\"cover\"><img class=\"cover-img\" src=\"${escapeHtml(c.banner)}\" alt=\"${escapeHtml(c.name)}\"/></div>` : `<div class=\"cover ${coverClass}\"></div>`;
   return `
     <article class="card">
-      <div class="cover ${coverClass}"></div>
+      ${coverHtml}
       <div class="title" style="margin-top:10px;" title="${escapeHtml(c.name)}">${escapeHtml(c.name)}</div>
       <div class="subtle">${escapeHtml(c.subtitle)}</div>
       <div class="meta"><span class="badge">${status}</span></div>
@@ -311,7 +312,7 @@ function renderEventCard(c) {
       </div>
       <div class="info-bar">
         <span>${new Date(c.startTs).toLocaleDateString()} – ${new Date(c.endTs).toLocaleDateString()}</span>
-        <span>Teams: ${teamCount} · Members: ${memberCount}</span>
+        <span>Teams: ${teamCount}${c.teamCap?`/${c.teamCap}`:''} · Members: ${memberCount}</span>
       </div>
     </article>
   `;
@@ -722,25 +723,37 @@ function wireHeader() {
   document.querySelectorAll("[data-close-modal]").forEach((el) => { el.addEventListener("click", () => toggleModal(el.getAttribute("data-close-modal"), false)); });
 
   const form = document.getElementById('form-create-event');
-  if (form) form.onsubmit = (e) => {
-    e.preventDefault();
-    if (!state.user.connected) { showToast('Connect wallet to continue'); return; }
-    const name = document.getElementById('create-evt-name').value.trim();
-    const type = document.getElementById('create-evt-type').value;
-    const subtitle = document.getElementById('create-evt-sub').value.trim();
-    const start = document.getElementById('create-evt-start').value;
-    const end = document.getElementById('create-evt-end').value;
-    if (!name || !subtitle) { showToast('Please fill in required fields'); return; }
-    const id = `${type}-${Math.random().toString(36).slice(2,7)}`;
-    const startTs = start ? new Date(start).getTime() : Date.now();
-    const endTs = end ? new Date(end).getTime() : (Date.now() + 7*86_400_000);
-    const evt = mkEvent(id, name, subtitle, startTs, endTs, type, []);
-    state.competitions.unshift(evt);
-    state.teamsByCompetition.set(id, []);
-    toggleModal('modal-create-event', false);
-    showToast('Event created');
-    render();
-  };
+  if (form) {
+    const capRadios = form.querySelectorAll('input[name="cap"]');
+    const capField = document.getElementById('cap-field');
+    capRadios.forEach(r => r.addEventListener('change', ()=> { const fixed = form.querySelector('input[name="cap"]:checked').value === 'fixed'; capField.hidden = !fixed; }));
+    form.onsubmit = (e) => {
+      e.preventDefault();
+      if (!state.user.connected) { showToast('Connect wallet to continue'); return; }
+      const name = document.getElementById('create-evt-name').value.trim();
+      const type = document.getElementById('create-evt-type').value;
+      const subtitle = document.getElementById('create-evt-sub').value.trim();
+      const banner = document.getElementById('create-evt-banner').value.trim();
+      const capMode = form.querySelector('input[name="cap"]:checked').value;
+      const capNumRaw = document.getElementById('create-evt-cap').value.trim();
+      const tagsRaw = document.getElementById('create-evt-tags').value.trim();
+      const start = document.getElementById('create-evt-start').value;
+      const end = document.getElementById('create-evt-end').value;
+      if (!name || !subtitle) { showToast('Please fill in required fields'); return; }
+      let tagArr = tagsRaw ? tagsRaw.split(',').map(s=> s.trim()).filter(Boolean).slice(0,2) : [];
+      const id = `${type}-${Math.random().toString(36).slice(2,7)}`;
+      const startTs = start ? new Date(start).getTime() : Date.now();
+      const endTs = end ? new Date(end).getTime() : (Date.now() + 7*86_400_000);
+      const evt = mkEvent(id, name, subtitle, startTs, endTs, type, tagArr);
+      if (banner) evt.banner = banner;
+      if (capMode === 'fixed') evt.teamCap = Math.max(1, Number(capNumRaw||'0'));
+      state.competitions.unshift(evt);
+      state.teamsByCompetition.set(id, []);
+      toggleModal('modal-create-event', false);
+      showToast('Event created');
+      render();
+    };
+  }
 }
 
 window.addEventListener("hashchange", render);
