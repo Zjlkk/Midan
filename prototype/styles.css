@@ -75,6 +75,10 @@ h1, h2, h3 { margin: 0 0 12px; }
 .card .title { font-weight: 700; }
 .card .meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; color: #475569; }
 .card .actions { margin-top: 6px; display: flex; gap: 8px; }
+.card > .subtle { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* Event card bottom info bar */
+.card .info-bar { margin-top: 8px; padding-top: 8px; border-top: 1px solid #eaeef5; display: flex; align-items: center; justify-content: space-between; color: #64748b; font-size: 12px; }
 
 .filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 .filter { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; border: 1px solid #e2e8f0; background: white; cursor: pointer; }
@@ -167,3 +171,11 @@ h1, h2, h3 { margin: 0 0 12px; }
 .node.delay1 { animation-delay: .6s; }
 .node.delay2 { animation-delay: 1.2s; }
 .node.delay3 { animation-delay: 1.8s; } 
+
+.visual canvas { width: 320px; height: 160px; display: block; }
+
+/* Reduced motion accessibility */
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+  .line { animation: none !important; }
+} 

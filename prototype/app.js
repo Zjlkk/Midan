@@ -190,17 +190,7 @@ function renderEvents(root) {
         </div>
         <div>
           <div class="visual">
-            <svg width="320" height="160" viewBox="0 0 320 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <defs>
-                <linearGradient id="gStroke" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stop-color="#6366F1"/>
-                  <stop offset="100%" stop-color="#06B6D4"/>
-                </linearGradient>
-              </defs>
-              <path class="line fast" d="M10,120 C60,40 170,40 310,120"/>
-              <path class="line" d="M10,110 C80,30 190,30 310,110"/>
-              <path class="line slow" d="M10,130 C100,50 210,50 310,130"/>
-            </svg>
+            <canvas id="hero-canvas" width="320" height="160"></canvas>
             <div class="visual-caption">Live lines, on‑chain sync, team signals</div>
           </div>
         </div>
@@ -273,6 +263,10 @@ function renderEventCard(c) {
       <div class="tag-row">
         <span class="type-pill ${typeClass}">${labelForType(c.type)}</span>
         ${tagPills}${more}
+      </div>
+      <div class="info-bar">
+        <span>${new Date(c.startTs).toLocaleDateString()} – ${new Date(c.endTs).toLocaleDateString()}</span>
+        <span>Participants: ${Math.floor(8 + Math.random()*42)}</span>
       </div>
       <div class="actions">
         <button class="btn primary" data-open-comp="${c.id}">Enter</button>
@@ -643,3 +637,29 @@ window.addEventListener("hashchange", render);
 seedMock();
 wireHeader();
 render();
+
+// Hero canvas animation (simple line flow)
+(function heroCanvas(){
+  const c = document.getElementById('hero-canvas');
+  if (!c || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const ctx = c.getContext('2d');
+  let t = 0; const W = c.width, H = c.height;
+  function grad(){ const g = ctx.createLinearGradient(0,0,W,H); g.addColorStop(0,'#6366F1'); g.addColorStop(1,'#06B6D4'); return g; }
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    ctx.lineWidth = 1.5; ctx.lineCap='round';
+    const g = grad();
+    const lines = [ {o:0, amp:30, y:110}, {o:Math.PI/3, amp:26, y:118}, {o:Math.PI*0.66, amp:22, y:102} ];
+    lines.forEach((ln,i)=>{
+      ctx.strokeStyle = g; ctx.globalAlpha = [0.95,0.85,0.6][i];
+      ctx.beginPath();
+      for (let x=0; x<=W; x+=4){
+        const y = ln.y + Math.sin((x*0.025)+t+ln.o)*ln.amp;
+        if (x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+    });
+    t += 0.02; requestAnimationFrame(draw);
+  }
+  draw();
+})();
