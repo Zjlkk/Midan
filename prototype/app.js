@@ -233,7 +233,6 @@ function renderEvents(root) {
         </select>
       </div>
       <div class="spacer"></div>
-      <div class="clear-link" id="clear-filters-link">Clear Filters</div>
     </section>
 
     <section>
@@ -261,10 +260,8 @@ function renderEvents(root) {
         <svg class=\"empty-illu\" viewBox=\"0 0 120 60\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><rect x=\"2\" y=\"18\" rx=\"8\" ry=\"8\" width=\"116\" height=\"24\" fill=\"#eef2ff\" stroke=\"#e5e7eb\"/><path d=\"M10 30 H110\" stroke=\"#c7d2fe\" stroke-dasharray=\"4 6\" /></svg>
         <div class=\"title\">No events found</div>
         <div class=\"subtle\">Try clearing filters or adjusting your search.</div>
-        <div class=\"actions\"><button class=\"btn outline\" id=\"clear-filters\">Clear Filters</button></div>
       </article>
     `;
-    const clear = document.getElementById('clear-filters'); if (clear) clear.addEventListener('click', ()=> { writeEventFilters({ type:'', status:'', search:'' }); render(); });
   }
   wireEventCardFilters();
 
@@ -273,7 +270,6 @@ function renderEvents(root) {
   document.getElementById('flt-all').addEventListener('click', ()=> { writeEventFilters({ type: '', status: '' }); render(); });
   document.getElementById('flt-type').addEventListener('change', (e)=> { writeEventFilters({ type: e.target.value }); render(); });
   document.getElementById('flt-status').addEventListener('change', (e)=> { writeEventFilters({ status: e.target.value }); render(); });
-  document.getElementById('clear-filters-link').addEventListener('click', ()=> { writeEventFilters({ type:'', status:'', search:'' }); render(); });
 }
 
 function renderTypeOption(value, label, selected){ return `<option value="${value}" ${selected===value?'selected':''}>${label}</option>`; }
@@ -310,13 +306,12 @@ function renderEventCard(c) {
         <span class="type-pill ${typeClass}"><span class="icon">${icon}</span>${labelForType(c.type)}</span>
         ${tagPills}${more}
       </div>
-      <div class="hairline"></div>
+      <div class="actions" style="margin-top:8px; opacity:1; transform:none;">
+        <button class="btn primary" data-open-comp="${c.id}">Enter</button>
+      </div>
       <div class="info-bar">
         <span>${new Date(c.startTs).toLocaleDateString()} – ${new Date(c.endTs).toLocaleDateString()}</span>
         <span>Teams: ${teamCount} · Members: ${memberCount}</span>
-      </div>
-      <div class="actions">
-        <button class="btn primary" data-open-comp="${c.id}">Enter</button>
       </div>
     </article>
   `;
