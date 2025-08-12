@@ -55,7 +55,7 @@ h1, h2, h3 { margin: 0 0 12px; }
 .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 16px; }
 .controls .spacer { flex: 1; }
 
-.btn { appearance: none; border: 1px solid transparent; background: #e2e8f0; color: #0f172a; padding: 9px 14px; border-radius: 10px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; line-height: 1; min-height: 36px; white-space: nowrap; }
+.btn { appearance: none; border: 1px solid transparent; background: #e2e8f0; color: #0f172a; padding: 0 14px; border-radius: 10px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; height: 36px; white-space: nowrap; font-size: 14px; }
 .btn.primary { background: linear-gradient(180deg, rgba(59,130,246,0.12), rgba(147,197,253,0.12)); color: #0f172a; border-color: #cfe3ff; box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), var(--shadow-1); }
 .btn.primary:active { transform: translateY(1px); }
 .btn.primary:hover { border-color: #a7c7ff; box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), var(--shadow-2); }
