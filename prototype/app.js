@@ -371,7 +371,8 @@ function renderCompetitionOverview(root, cid) {
 
     <section class="card" style="margin-bottom:12px;">
       <div class="title">About</div>
-      <div class="subtle">Team formation and joining rules: one wallet can create one team or join one team per competition. Private teams require a join code.</div>
+      <div class="subtle">${escapeHtml(c.subtitle)}</div>
+      <div class="rules"><strong>Rules</strong>: Team formation and joining rules: one wallet can create one team or join one team per competition. Private teams require a join code.</div>
     </section>
 
     <section class="controls">

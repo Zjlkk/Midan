@@ -260,3 +260,5 @@ h1, h2, h3 { margin: 0 0 12px; }
 .filters-bar .spacer { flex: 1; }
 .filters-bar .clear-link { color: #2563eb; font-weight: 600; cursor: pointer; }
 .filters-bar .clear-link:hover { text-decoration: underline; } 
+
+.rules { margin-top: 8px; color: #475569; font-size: 13px; } 
