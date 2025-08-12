@@ -25,13 +25,13 @@ function seedMock() {
       "sonic-trade",
       "Sonic SVM On‑Chain Trading Competition",
       "A trading tournament hosted by Sonic SVM with a prize pool of up to $1,000,000. Form a team and climb the leaderboard.",
-      now - 1*86_400_000, now + 14*86_400_000, 'competition', ['Trading','DeFi']
+      now - 1*86_400_000, now + 14*86_400_000, 'trade', ['Trading','DeFi']
     ),
     mkEvent(
       "sonic-hack",
       "Sonic SVM Internal Hackathon Grouping",
       "Team up for the Sonic SVM internal hackathon. Find collaborators and build fast.",
-      now - 2*86_400_000, now + 7*86_400_000, 'quest', ['Hackathon','Builders']
+      now - 2*86_400_000, now + 7*86_400_000, 'hackathon', ['Hackathon','Builders']
     ),
     mkEvent(
       "goodr-alpha",
@@ -43,19 +43,19 @@ function seedMock() {
       "chaos-group",
       "Chaos Finance — Official Group",
       "Join the official Chaos Finance group for AMAs, product updates, and direct Q&A with the team.",
-      now - 3*86_400_000, now + 30*86_400_000, 'quest', ['AMA','Community']
+      now - 3*86_400_000, now + 30*86_400_000, 'official', ['AMA','Community']
     ),
     mkEvent(
       "chillonic-otc",
       "Chillonic — OTC Group",
       "Peer‑to‑peer OTC hub for exchanging Chillonic NFTs. Find counterparties safely and coordinate trades.",
-      now - 2*86_400_000, now + 15*86_400_000, 'quest', ['NFT','OTC']
+      now - 2*86_400_000, now + 15*86_400_000, 'trade', ['NFT','OTC']
     ),
     mkEvent(
       "fomoney-gov",
       "FoMoney — Governance Event",
       "Back your favorite ticker and participate in governance decisions. Rally a team for coordinated voting.",
-      now + 1*86_400_000, now + 7*86_400_000, 'quest', ['Governance','Voting']
+      now + 1*86_400_000, now + 7*86_400_000, 'official', ['Governance','Voting']
     ),
   ];
 
@@ -215,6 +215,9 @@ function renderEvents(root) {
       <div>
         <select id="flt-type" class="btn outline" style="padding:8px 10px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:#0f172a;">
           ${renderTypeOption('', 'Event Type: All', f.type)}
+          ${renderTypeOption('trade','Trade', f.type)}
+          ${renderTypeOption('hackathon','Hackathon', f.type)}
+          ${renderTypeOption('official','Official', f.type)}
           ${renderTypeOption('alpha','Alpha Finding', f.type)}
           ${renderTypeOption('competition','Competition', f.type)}
           ${renderTypeOption('launchpad','Launchpad', f.type)}
@@ -254,7 +257,12 @@ function renderStatusOption(value, label, selected){ return `<option value="${va
 function renderEventCard(c) {
   const now = Date.now();
   const status = now < c.startTs ? 'Upcoming' : (now > c.endTs ? 'Completed' : 'Ongoing');
-  const typeClass = c.type==='competition'?'type-blue': c.type==='alpha'?'type-purple': c.type==='launchpad'?'type-green':'type-orange';
+  const typeClass = (
+    c.type==='trade' || c.type==='competition' ? 'type-blue' :
+    c.type==='hackathon' || c.type==='alpha' ? 'type-purple' :
+    c.type==='official' || c.type==='launchpad' ? 'type-green' :
+    'type-orange'
+  );
   const tagPills = (c.tags||[]).slice(0,2).map(t=> `<span class=\"tag-pill\" data-type-filter=\"${c.type}\">${t}</span>`).join('');
   const more = (c.tags||[]).length>2 ? `<span class=\"tag-pill\" title=\"More\">+${(c.tags||[]).length-2}</span>`: '';
   return `
@@ -272,7 +280,16 @@ function renderEventCard(c) {
     </article>
   `;
 }
-function labelForType(t){ if(t==='competition') return 'Competition'; if(t==='alpha') return 'Alpha Finding'; if(t==='launchpad') return 'Launchpad'; if(t==='quest') return 'Quest'; return 'Event'; }
+function labelForType(t){
+  if(t==='trade') return 'Trade';
+  if(t==='hackathon') return 'Hackathon';
+  if(t==='official') return 'Official';
+  if(t==='competition') return 'Competition';
+  if(t==='alpha') return 'Alpha Finding';
+  if(t==='launchpad') return 'Launchpad';
+  if(t==='quest') return 'Quest';
+  return 'Event';
+}
 function wireEventCardFilters(){
   document.querySelectorAll('[data-open-comp]').forEach((el) => { el.addEventListener("click", () => setHash(`/competition/${el.getAttribute("data-open-comp")}`)); });
   document.querySelectorAll('[data-type-filter]').forEach(el=> el.addEventListener('click', ()=> { const typ = el.getAttribute('data-type-filter'); writeEventFilters({ type: typ }); render(); }));
