@@ -353,6 +353,24 @@ function renderCompetitionOverview(root, cid) {
   document.getElementById("search").value = filters.search;
 
   const grid = document.getElementById("grid");
+  // Team skeletons
+  grid.innerHTML = new Array(6).fill(0).map(() => `
+    <article class=\"card\">
+      <div class=\"skel-line skel\" style=\"width:40%\"></div>
+      <div class=\"skel-line skel\" style=\"width:90%\"></div>
+      <div style=\"display:flex;align-items:center;gap:6px;margin:6px 0;\">
+        <div class=\"skel-badge skel\"></div>
+        <div class=\"skel-badge skel\"></div>
+      </div>
+      <div style=\"display:flex;align-items:center;\">
+        <div class=\"skel skel-avatar\"></div>
+        <div class=\"skel skel-avatar\" style=\"margin-left:-6px\"></div>
+        <div class=\"skel skel-avatar\" style=\"margin-left:-6px\"></div>
+      </div>
+      <div class=\"skel skel-btn\" style=\"margin-top:8px\"></div>
+    </article>
+  `).join("");
+
   grid.innerHTML = teams.length ? teams.map(t => renderTeamCard(cid, t)).join("") : `<div class="card"><div class="title">No teams yet</div><div class="subtle">Be the first to create one.</div></div>`;
 
   document.getElementById("ui-create").addEventListener("click", () => openCreateModal(cid));
@@ -376,6 +394,9 @@ function renderTeamCard(cid, t) {
     : t.isPrivate ? `<button class="btn" data-join-private="${t.teamId}">Join with Code</button>`
     : `<button class="btn primary" data-join-public="${t.teamId}">Join</button>`;
   const privacy = t.isPrivate ? '<span class="badge gray">Private</span>' : '<span class="badge green">Public</span>';
+  const initials = (addr) => addr.slice(2,4).toUpperCase();
+  const avatars = t.members.slice(0,4).map(a => `<div class=\"avatar\">${initials(a)}</div>`).join("");
+  const more = t.members.length > 4 ? `<span class=\"more\">+${t.members.length-4}</span>` : '';
   return `
     <article class="card" data-team-id="${t.teamId}">
       <div class="title">${escapeHtml(t.name)}</div>
@@ -385,6 +406,7 @@ function renderTeamCard(cid, t) {
         <span class="badge">Members ${t.members.length}/${t.maxMembers}</span>
         <span class="badge">Captain ${shortAddr(t.captain)}</span>
       </div>
+      <div class="avatars">${avatars}${more}</div>
       <div class="actions">
         <button class="btn outline" data-view="${t.teamId}">View</button>
         ${btn}
