@@ -145,11 +145,11 @@ h1, h2, h3 { margin: 0 0 12px; }
 .chip.outline { background: #ffffff; border-color: #cbd5e1; color: #334155; }
 
 .card .tag-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 6px; }
-.card .type-pill { font-size: 12px; padding: 2px 8px; border-radius: 999px; color: #fff; }
-.card .type-blue { background: #2563eb; }
-.card .type-purple { background: #7c3aed; }
-.card .type-green { background: #16a34a; }
-.card .type-orange { background: #f59e0b; }
+.card .type-pill { font-size: 12px; padding: 2px 8px; border-radius: 999px; color: #0f172a; border: 1px solid #cbd5e1; background: #fff; }
+.card .type-blue { background: linear-gradient(180deg, rgba(59,130,246,0.14), rgba(147,197,253,0.14)); border-color: #cfe3ff; }
+.card .type-purple { background: linear-gradient(180deg, rgba(124,58,237,0.14), rgba(196,181,253,0.14)); border-color: #dec9ff; }
+.card .type-green { background: linear-gradient(180deg, rgba(34,197,94,0.14), rgba(134,239,172,0.14)); border-color: #c7f0d7; }
+.card .type-orange { background: linear-gradient(180deg, rgba(245,158,11,0.14), rgba(253,213,128,0.14)); border-color: #f9e0a8; }
 .card .tag-pill { font-size: 12px; padding: 2px 8px; border-radius: 999px; border: 1px solid #cbd5e1; color: #334155; background: #fff; cursor: pointer; } 
 
 .visual { display: grid; justify-items: center; gap: 6px; }
