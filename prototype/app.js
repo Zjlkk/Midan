@@ -190,8 +190,18 @@ function renderEvents(root) {
         </div>
         <div>
           <div class="visual">
-            <canvas id="hero-canvas" width="320" height="160"></canvas>
-            <div class="visual-caption">Live lines, on‑chain sync, team signals</div>
+            <svg width="320" height="160" viewBox="0 0 320 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <defs>
+                <linearGradient id="gStatic" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#6366F1"/>
+                  <stop offset="100%" stop-color="#06B6D4"/>
+                </linearGradient>
+              </defs>
+              <path d="M10,120 C60,40 170,40 310,120" stroke="url(#gStatic)" stroke-width="1.6" stroke-linecap="round" opacity="0.95"/>
+              <path d="M10,110 C80,30 190,30 310,110" stroke="url(#gStatic)" stroke-width="1.6" stroke-linecap="round" opacity="0.85"/>
+              <path d="M10,130 C100,50 210,50 310,130" stroke="url(#gStatic)" stroke-width="1.6" stroke-linecap="round" opacity="0.6"/>
+            </svg>
+            <div class="visual-caption">On‑chain sync, team signals</div>
           </div>
         </div>
       </div>
@@ -710,29 +720,3 @@ window.addEventListener("hashchange", render);
 seedMock();
 wireHeader();
 render();
-
-// Hero canvas animation (simple line flow)
-(function heroCanvas(){
-  const c = document.getElementById('hero-canvas');
-  if (!c || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const ctx = c.getContext('2d');
-  let t = 0; const W = c.width, H = c.height;
-  function grad(){ const g = ctx.createLinearGradient(0,0,W,H); g.addColorStop(0,'#6366F1'); g.addColorStop(1,'#06B6D4'); return g; }
-  function draw(){
-    ctx.clearRect(0,0,W,H);
-    ctx.lineWidth = 1.5; ctx.lineCap='round';
-    const g = grad();
-    const lines = [ {o:0, amp:30, y:110}, {o:Math.PI/3, amp:26, y:118}, {o:Math.PI*0.66, amp:22, y:102} ];
-    lines.forEach((ln,i)=>{
-      ctx.strokeStyle = g; ctx.globalAlpha = [0.95,0.85,0.6][i];
-      ctx.beginPath();
-      for (let x=0; x<=W; x+=4){
-        const y = ln.y + Math.sin((x*0.025)+t+ln.o)*ln.amp;
-        if (x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
-      }
-      ctx.stroke();
-    });
-    t += 0.02; requestAnimationFrame(draw);
-  }
-  draw();
-})();
