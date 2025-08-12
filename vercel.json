@@ -4,7 +4,7 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "redirects": [
-    { "source": "/", "destination": "/prototype/#/events", "permanent": false }
+    { "source": "/", "destination": "/prototype/", "permanent": false }
   ],
   "routes": [
     { "src": "/prototype/(.*)", "dest": "/prototype/$1" },
