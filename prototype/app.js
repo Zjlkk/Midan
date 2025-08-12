@@ -244,6 +244,17 @@ function renderEvents(root) {
 
   // Then render real cards
   grid.innerHTML = events.map(c => renderEventCard(c)).join("");
+  if (events.length === 0) {
+    grid.innerHTML = `
+      <article class=\"card empty-card\">
+        <svg class=\"empty-illu\" viewBox=\"0 0 120 60\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><rect x=\"2\" y=\"18\" rx=\"8\" ry=\"8\" width=\"116\" height=\"24\" fill=\"#eef2ff\" stroke=\"#e5e7eb\"/><path d=\"M10 30 H110\" stroke=\"#c7d2fe\" stroke-dasharray=\"4 6\" /></svg>
+        <div class=\"title\">No events found</div>
+        <div class=\"subtle\">Try clearing filters or adjusting your search.</div>
+        <div class=\"actions\"><button class=\"btn outline\" id=\"clear-filters\">Clear Filters</button></div>
+      </article>
+    `;
+    const clear = document.getElementById('clear-filters'); if (clear) clear.addEventListener('click', ()=> { writeEventFilters({ type:'', status:'', search:'' }); render(); });
+  }
   wireEventCardFilters();
 
   // Filters wiring
@@ -266,6 +277,9 @@ function renderEventCard(c) {
     'type-orange'
   );
   const icon = c.type==='trade' ? '📈' : c.type==='hackathon' ? '🛠️' : c.type==='official' ? '🏛️' : c.type==='alpha' ? '🔎' : c.type==='launchpad' ? '🚀' : '🎯';
+  const teams = getTeams(c.id);
+  const teamCount = teams.length;
+  const memberCount = teams.reduce((acc,t)=> acc + t.members.length, 0);
   const tagPills = (c.tags||[]).slice(0,2).map(t=> `<span class=\"tag-pill\" data-type-filter=\"${c.type}\">${t}</span>`).join('');
   const more = (c.tags||[]).length>2 ? `<span class=\"tag-pill\" title=\"More\">+${(c.tags||[]).length-2}</span>`: '';
   return `
@@ -279,7 +293,7 @@ function renderEventCard(c) {
       </div>
       <div class="info-bar">
         <span>${new Date(c.startTs).toLocaleDateString()} – ${new Date(c.endTs).toLocaleDateString()}</span>
-        <span>Participants: ${Math.floor(8 + Math.random()*42)}</span>
+        <span>Teams: ${teamCount} · Members: ${memberCount}</span>
       </div>
       <div class="actions">
         <button class="btn primary" data-open-comp="${c.id}">Enter</button>
