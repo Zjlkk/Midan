@@ -102,6 +102,7 @@ function render() {
   // Header buttons state
   document.getElementById("btn-my-team").disabled = !hasAnyMembership();
   document.getElementById("btn-connect").textContent = state.user.connected ? shortAddr(state.user.address) : "Connect Wallet";
+  const ceBtn = document.getElementById('btn-create-event'); if (ceBtn) ceBtn.disabled = !state.user.connected;
 
   // Router
   if (path === "/events") {
@@ -713,6 +714,7 @@ function escapeHtml(str) { return str.replace(/[&<>"]+/g, (c) => ({ "&": "&amp;"
 
 // Header buttons
 function openCreateEventModal() {
+  if (!state.user.connected) { showToast('Connect wallet to continue'); return; }
   const modalId = 'modal-create-event';
   toggleModal(modalId, true);
   const form = document.getElementById('form-create-event');
