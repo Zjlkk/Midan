@@ -21,6 +21,7 @@
           </div>
         </div>
         <nav class="nav-actions">
+          <button id="btn-create-event" class="btn primary">Create Event</button>
           <button id="btn-my-team" class="btn secondary">My Team</button>
           <button id="btn-connect" class="btn outline">Connect Wallet</button>
         </nav>
@@ -49,6 +50,11 @@
               <input type="text" id="create-name" placeholder="e.g., Alpha Squad" required maxlength="48" />
             </label>
             <label class="field">
+              <span>Description</span>
+              <textarea id="create-desc" rows="3" placeholder="What is your team about?" required minlength="10" maxlength="200"></textarea>
+              <small class="hint"><span id="desc-count">0</span>/200</small>
+            </label>
+            <label class="field">
               <span>Privacy</span>
               <div class="segmented">
                 <label><input type="radio" name="privacy" value="public" checked /> Public</label>
@@ -70,6 +76,74 @@
             <div class="modal-actions">
               <button type="button" class="btn" data-close-modal="modal-create">Cancel</button>
               <button type="submit" class="btn primary">Create Team</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create Event Modal -->
+    <div id="modal-create-event" class="modal" aria-hidden="true" role="dialog" aria-modal="true">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3>Create Event</h3>
+          <button class="icon-btn" data-close-modal="modal-create-event" aria-label="Close">✕</button>
+        </div>
+        <div class="modal-body">
+          <form id="form-create-event" autocomplete="off">
+            <label class="field">
+              <span>Event Name</span>
+              <input type="text" id="create-evt-name" placeholder="e.g., Sonic Trading Cup" required maxlength="72" />
+            </label>
+            <label class="field">
+              <span>Event Type</span>
+              <select id="create-evt-type" required>
+                <option value="trade">Trade</option>
+                <option value="hackathon">Hackathon</option>
+                <option value="official">Official</option>
+                <option value="alpha">Alpha Finding</option>
+                <option value="launchpad">Launchpad</option>
+                <option value="quest">Quest</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>About (Subtitle)</span>
+              <textarea id="create-evt-sub" rows="3" placeholder="One sentence intro for the event" required minlength="10" maxlength="200"></textarea>
+            </label>
+            <label class="field">
+              <span>Banner (Upload)</span>
+              <input type="file" id="create-evt-banner" accept="image/*" />
+              <small class="hint">Optional. Upload an image; a preview will be used on the event card.</small>
+            </label>
+            <div class="field">
+              <span>Team Capacity</span>
+              <div class="segmented">
+                <label><input type="radio" name="cap" value="unlimited" checked /> Unlimited</label>
+                <label><input type="radio" name="cap" value="fixed" /> Limited</label>
+              </div>
+              <div id="cap-field" class="field" hidden>
+                <input type="number" id="create-evt-cap" min="1" max="9999" placeholder="Max teams" />
+                <small class="hint">If fixed, enter a positive number.</small>
+              </div>
+            </div>
+            <label class="field">
+              <span>Tags (up to 2)</span>
+              <input type="text" id="create-evt-tags" placeholder="e.g., AMA, Research" />
+              <small class="hint">Comma‑separated, up to 2 keywords.</small>
+            </label>
+            <div class="segmented" style="gap:10px; flex-wrap:wrap; margin: 10px 0;">
+              <label class="field" style="min-width:220px;">
+                <span>Start Date</span>
+                <input type="date" id="create-evt-start" />
+              </label>
+              <label class="field" style="min-width:220px;">
+                <span>End Date</span>
+                <input type="date" id="create-evt-end" />
+              </label>
+            </div>
+            <div class="modal-actions">
+              <button type="button" class="btn" data-close-modal="modal-create-event">Cancel</button>
+              <button type="submit" class="btn primary">Create Event</button>
             </div>
           </form>
         </div>
