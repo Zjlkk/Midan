@@ -17,6 +17,7 @@ const state = {
     currentCid: null,
   },
 };
+state.reactions = { counts: {}, user: {} };
 
 function seedMock() {
   const now = Date.now();
@@ -298,6 +299,7 @@ function renderEventCard(c) {
   const tagPills = (c.tags||[]).slice(0,2).map(t=> `<span class=\"tag-pill\" data-type-filter=\"${c.type}\">${t}</span>`).join('');
   const more = (c.tags||[]).length>2 ? `<span class=\"tag-pill\" title=\"More\">+${(c.tags||[]).length-2}</span>`: '';
   const coverHtml = c.banner ? `<div class=\"cover\"><img class=\"cover-img\" src=\"${escapeHtml(c.banner)}\" alt=\"${escapeHtml(c.name)}\"/></div>` : `<div class=\"cover ${coverClass}\"></div>`;
+  const reacts = `<div class=\"reactions\" style=\"display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;\">${renderReactionButton(c.id,'🎉')}${renderReactionButton(c.id,'🔥')}${renderReactionButton(c.id,'👍')}</div>`;
   return `
     <article class="card">
       ${coverHtml}
@@ -311,6 +313,7 @@ function renderEventCard(c) {
       <div class="actions" style="margin-top:8px; opacity:1; transform:none;">
         <button class="btn primary" data-open-comp="${c.id}">Enter</button>
       </div>
+      ${reacts}
       <div class="info-bar">
         <span>${new Date(c.startTs).toLocaleDateString()} – ${new Date(c.endTs).toLocaleDateString()}</span>
         <span>Teams: ${teamCount}${c.teamCap?`/${c.teamCap}`:''} · Members: ${memberCount}</span>
@@ -331,6 +334,9 @@ function labelForType(t){
 function wireEventCardFilters(){
   document.querySelectorAll('[data-open-comp]').forEach((el) => { el.addEventListener("click", () => setHash(`/competition/${el.getAttribute("data-open-comp")}`)); });
   document.querySelectorAll('[data-type-filter]').forEach(el=> el.addEventListener('click', ()=> { const typ = el.getAttribute('data-type-filter'); writeEventFilters({ type: typ }); render(); }));
+  document.querySelectorAll('[data-react]').forEach((el)=> {
+    el.addEventListener('click', ()=> handleReactionClick(el.getAttribute('data-evt'), el.getAttribute('data-react')));
+  });
 }
 
 function renderCompetitionOverview(root, cid) {
@@ -780,9 +786,64 @@ function wireHeader() {
       state.teamsByCompetition.set(id, []);
       toggleModal('modal-create-event', false);
       showToast('Event created');
+      confettiBurst(1000);
       render();
     };
   }
+}
+
+function getReactionCounts(eventId) {
+  const key = String(eventId);
+  const base = state.reactions.counts[key] || { '🎉': 0, '🔥': 0, '👍': 0 };
+  // Ensure defaults exist
+  state.reactions.counts[key] = base;
+  return base;
+}
+function getUserReaction(eventId) { return state.reactions.user[String(eventId)] || null; }
+function setUserReaction(eventId, emoji) {
+  const key = String(eventId);
+  const counts = getReactionCounts(key);
+  const prev = getUserReaction(key);
+  if (prev && counts[prev] > 0) counts[prev] -= 1;
+  state.reactions.user[key] = emoji;
+  if (emoji) counts[emoji] = (counts[emoji] || 0) + 1;
+}
+function handleReactionClick(eventId, emoji){
+  if (!state.user.connected) { showToast('Connect wallet to react'); return; }
+  const cur = getUserReaction(eventId);
+  if (cur === emoji) { setUserReaction(eventId, null); } else { setUserReaction(eventId, emoji); }
+  render();
+}
+function renderReactionButton(eventId, emoji){
+  const counts = getReactionCounts(eventId);
+  const selected = getUserReaction(eventId) === emoji;
+  const count = counts[emoji] || 0;
+  const style = selected ? "border-color:#6366f1;background:#eef2ff;transform:scale(1.04);" : "opacity:0.9;";
+  return `<button class=\"btn outline\" data-react=\"${emoji}\" data-evt=\"${String(eventId)}\" style=\"padding:4px 8px;border-radius:10px;${style}\">${emoji} <span>${count}</span></button>`;
+}
+
+function confettiBurst(durationMs){
+  const dur = typeof durationMs === 'number' ? durationMs : 900;
+  const canvas = document.createElement('canvas');
+  canvas.style.position = 'fixed'; canvas.style.left='0'; canvas.style.top='0'; canvas.style.width='100%'; canvas.style.height='100%'; canvas.style.pointerEvents='none'; canvas.style.zIndex='9999';
+  const ctx = canvas.getContext('2d');
+  document.body.appendChild(canvas);
+  const dpr = window.devicePixelRatio || 1;
+  function resize(){ canvas.width = Math.floor(innerWidth * dpr); canvas.height = Math.floor(innerHeight * dpr); }
+  resize();
+  const colors = ['#6366F1','#06B6D4','#10B981','#F59E0B','#EF4444','#8B5CF6'];
+  const N = 120; const parts = Array.from({length:N},()=>({
+    x: Math.random()*canvas.width, y: -20*dpr*Math.random(), vx: (Math.random()-0.5)*2*dpr, vy: (2+Math.random()*3)*dpr,
+    size: (2+Math.random()*4)*dpr, rot: Math.random()*Math.PI, vr: (Math.random()-0.5)*0.2, color: colors[Math.floor(Math.random()*colors.length)]
+  }));
+  const t0 = performance.now();
+  function step(t){
+    const dt = 16; // approx
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    for(const p of parts){ p.vy += 0.03*dpr; p.x += p.vx; p.y += p.vy; p.rot += p.vr; ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot); ctx.fillStyle=p.color; ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size); ctx.restore(); }
+    if (t - t0 < dur) requestAnimationFrame(step); else { document.body.removeChild(canvas); }
+  }
+  requestAnimationFrame(step);
 }
 
 window.addEventListener("hashchange", render);
