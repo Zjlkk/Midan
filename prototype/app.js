@@ -321,7 +321,7 @@ function renderEventCard(c) {
     const m = {cls:'orange', text:'Hot'};
     mood = `<span class=\"badge ${m.cls}\" title=\"Dominant reaction\">${m.text} 🔥</span>`;
   }
-  const ctaText = dom.count>0 ? 'Enter — HOT' : 'Enter';
+  const ctaText = 'Enter';
   const reacts = `<div class=\"reactions\" style=\"display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;\">${renderReactionButton(c.id,'🔥')}</div>`;
   return `
     <article class="card">
