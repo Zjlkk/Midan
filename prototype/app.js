@@ -899,8 +899,7 @@ function handleReactionClick(eventId, emoji){
   setUserReaction(eventId, willSet);
   const updated = updateReactionDom(eventId);
   const btn = document.querySelector(`[data-react="${emoji}"][data-evt="${String(eventId)}"]`);
-  if (btn) { pulseReactButton(btn); floatEmojiFromButton(btn, emoji); }
-  if (!cur && willSet) { try { confettiBurst(420); } catch(e){} }
+  if (btn) { pulseReactButton(btn); }
   if (!updated) render();
 }
 function renderReactionButton(eventId, emoji){
