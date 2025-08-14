@@ -67,6 +67,8 @@ h1, h2, h3 { margin: 0 0 12px; }
 .badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 2px 8px; border-radius: 999px; border: 1px solid #e2e8f0; color: #0f172a; background: white; }
 .badge.green { border-color: #86efac; background: #ecfdf5; color: #166534; }
 .badge.gray { background: #f1f5f9; color: #334155; }
+.badge.orange { border-color: #fdba74; background: #fff7ed; color: #9a3412; }
+.badge.purple { border-color: #d8b4fe; background: #f5f3ff; color: #6b21a8; }
 
 .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
 .card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px; position: relative; box-shadow: var(--shadow-1); transition: box-shadow .2s ease, transform .2s ease, border-color .2s ease; }

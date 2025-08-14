@@ -168,6 +168,7 @@ function filterEvents(events, f) {
   }
   if (f.sort === 'newest') arr.sort((a,b)=> b.startTs - a.startTs);
   else if (f.sort === 'ending') arr.sort((a,b)=> a.endTs - b.endTs);
+  else if (f.sort === 'trending') arr.sort((a,b)=> getEventTrendingScore(b) - getEventTrendingScore(a));
   else if (f.sort === 'active') arr.sort((a,b)=> (Date.now()>b.startTs && Date.now()<b.endTs ? 1:0) - (Date.now()>a.startTs && Date.now()<a.endTs ? 1:0));
   return arr;
 }
@@ -234,6 +235,14 @@ function renderEvents(root) {
           ${renderStatusOption('completed','Completed', f.status)}
         </select>
       </div>
+      <div>
+        <select id="flt-sort" class="btn outline" style="padding:8px 10px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:#0f172a;">
+          ${renderSortOption('active','Sort: Active', f.sort)}
+          ${renderSortOption('trending','Trending', f.sort)}
+          ${renderSortOption('newest','Newest', f.sort)}
+          ${renderSortOption('ending','Ending Soon', f.sort)}
+        </select>
+      </div>
       <div class="spacer"></div>
     </section>
 
@@ -272,10 +281,12 @@ function renderEvents(root) {
   document.getElementById('flt-all').addEventListener('click', ()=> { writeEventFilters({ type: '', status: '' }); render(); });
   document.getElementById('flt-type').addEventListener('change', (e)=> { writeEventFilters({ type: e.target.value }); render(); });
   document.getElementById('flt-status').addEventListener('change', (e)=> { writeEventFilters({ status: e.target.value }); render(); });
+  document.getElementById('flt-sort').addEventListener('change', (e)=> { writeEventFilters({ sort: e.target.value }); render(); });
 }
 
 function renderTypeOption(value, label, selected){ return `<option value="${value}" ${selected===value?'selected':''}>${label}</option>`; }
 function renderStatusOption(value, label, selected){ return `<option value="${value}" ${selected===value?'selected':''}>${label}</option>`; }
+function renderSortOption(value, label, selected){ return `<option value="${value}" ${selected===value?'selected':''}>${label}</option>`; }
 
 function renderEventCard(c) {
   const now = Date.now();
@@ -299,19 +310,26 @@ function renderEventCard(c) {
   const tagPills = (c.tags||[]).slice(0,2).map(t=> `<span class=\"tag-pill\" data-type-filter=\"${c.type}\">${t}</span>`).join('');
   const more = (c.tags||[]).length>2 ? `<span class=\"tag-pill\" title=\"More\">+${(c.tags||[]).length-2}</span>`: '';
   const coverHtml = c.banner ? `<div class=\"cover\"><img class=\"cover-img\" src=\"${escapeHtml(c.banner)}\" alt=\"${escapeHtml(c.name)}\"/></div>` : `<div class=\"cover ${coverClass}\"></div>`;
+  const dom = getDominantReaction(c.id);
+  let mood = '';
+  if (dom.count > 0) {
+    const m = dom.emoji==='🔥' ? {cls:'orange', text:'Hot'} : (dom.emoji==='🎉' ? {cls:'purple', text:'Celebrating'} : {cls:'green', text:'Well‑liked'});
+    mood = `<span class=\"badge ${m.cls}\" title=\"Dominant reaction\">${m.text} ${dom.emoji}</span>`;
+  }
+  const ctaText = dom.emoji==='🔥' && dom.count>0 ? 'Enter — HOT' : dom.emoji==='🎉' && dom.count>0 ? 'Enter — Join 🎉' : dom.emoji==='👍' && dom.count>0 ? 'Enter — Popular' : 'Enter';
   const reacts = `<div class=\"reactions\" style=\"display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;\">${renderReactionButton(c.id,'🎉')}${renderReactionButton(c.id,'🔥')}${renderReactionButton(c.id,'👍')}</div>`;
   return `
     <article class="card">
       ${coverHtml}
       <div class="title" style="margin-top:10px;" title="${escapeHtml(c.name)}">${escapeHtml(c.name)}</div>
       <div class="subtle">${escapeHtml(c.subtitle)}</div>
-      <div class="meta"><span class="badge">${status}</span></div>
+      <div class="meta"><span class="badge">${status}</span>${mood?` ${mood}`:''}</div>
       <div class="tag-row">
         <span class="type-pill ${typeClass}"><span class="icon">${icon}</span>${labelForType(c.type)}</span>
         ${tagPills}${more}
       </div>
       <div class="actions" style="margin-top:8px; opacity:1; transform:none;">
-        <button class="btn primary" data-open-comp="${c.id}">Enter</button>
+        <button class="btn primary" data-open-comp="${c.id}">${ctaText}</button>
       </div>
       ${reacts}
       <div class="info-bar">
@@ -869,6 +887,21 @@ function confettiBurst(durationMs){
     if (t - t0 < dur) requestAnimationFrame(step); else { document.body.removeChild(canvas); }
   }
   requestAnimationFrame(step);
+}
+
+function getDominantReaction(eventId){
+  const c = getReactionCounts(eventId);
+  const pairs = [['🔥', c['🔥']||0], ['🎉', c['🎉']||0], ['👍', c['👍']||0]];
+  pairs.sort((a,b)=> b[1]-a[1]);
+  return { emoji: pairs[0][0], count: pairs[0][1] };
+}
+function getEventTrendingScore(evt){
+  const c = getReactionCounts(evt.id);
+  const base = (c['🔥']||0)*3 + (c['🎉']||0)*2 + (c['👍']||0)*1;
+  const now = Date.now();
+  const ongoingBoost = (now>evt.startTs && now<evt.endTs) ? 1 : 0;
+  const upcomingBoost = (now<=evt.startTs) ? 0.2 : 0;
+  return base + ongoingBoost + upcomingBoost;
 }
 
 window.addEventListener("hashchange", render);
