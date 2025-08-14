@@ -181,7 +181,7 @@ function renderEvents(root) {
   const trendingHtml = topTrending.length ? (`<section class="trending-strip"><span class="label">Top Trending</span>` + topTrending.map(ev => {
     const score = getEventTrendingScore(ev);
     const hot = getReactionCounts(ev.id)['🔥'] || 0;
-    return `<span class=\"chip solid orange item\" data-open-comp=\"${ev.id}\" title=\"🔥 ${hot} — ${escapeHtml(ev.name)}\">🔥 ${hot} · ${escapeHtml(ev.name)}</span>`;
+    return `<span class=\"chip soft item\" data-open-comp=\"${ev.id}\" title=\"🔥 ${hot} — ${escapeHtml(ev.name)}\">🔥 ${hot} · ${escapeHtml(ev.name)}</span>`;
   }).join('') + `</section>`) : '';
 
   root.innerHTML = `
@@ -899,7 +899,7 @@ function handleReactionClick(eventId, emoji){
   setUserReaction(eventId, willSet);
   const updated = updateReactionDom(eventId);
   const btn = document.querySelector(`[data-react="${emoji}"][data-evt="${String(eventId)}"]`);
-  if (btn) { pulseReactButton(btn); }
+  if (btn) { pulseReactButton(btn); floatEmojiFromButton(btn, emoji); }
   if (!updated) render();
 }
 function renderReactionButton(eventId, emoji){
