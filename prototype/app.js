@@ -19,6 +19,8 @@ const state = {
 };
 state.reactions = { counts: {}, user: {} };
 state.invites = { byEvent: {} };
+state.signals = { byEvent: {} }; // { [cid]: Array<Signal> }
+state.positions = { byUser: {} }; // { [addressOrGuest]: Array<Position> }
 
 function seedMock() {
   const now = Date.now();
@@ -400,6 +402,7 @@ function renderCompetitionOverview(root, cid) {
       <div class="header-cta">
         <button class="btn primary" id="ui-create">Create Team</button>
         <button class="btn outline" id="evt-share">Copy Invite Link</button>
+        ${state.user.connected? `<button class="btn" id="btn-new-signal-top">New Signal</button>`: ''}
       </div>
     </section>
 
@@ -416,6 +419,9 @@ function renderCompetitionOverview(root, cid) {
       <div class="rules"><strong>Rules</strong>: Team formation and joining rules: one wallet can create one team or join one team per competition. Private teams require a join code.</div>
       <div class="helper" style="margin-top:6px;">Share your invite link to bring teammates: includes a referral parameter for lightweight tracking.</div>
     </section>
+
+    ${renderSignalsSection(cid)}
+    ${renderMyPaper(cid)}
 
     <section class="controls">
       <div class="filters">
@@ -489,6 +495,8 @@ function renderCompetitionOverview(root, cid) {
     }
   });
   wireCardButtons(cid);
+  wireSignalsSection(cid);
+  wireMyPaper(cid);
 }
 
 function renderTeamCard(cid, t) {
@@ -968,11 +976,161 @@ function getInviteStats(eventId){
 function myReferralKey(){ return state.user.connected ? shortAddr(state.user.address) : 'guest'; }
 async function copyText(text){ try { if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(text); } else { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); } showToast('Invite link copied'); } catch(e){ showToast('Copy failed'); } }
 
+function loadSignals(){ try { const raw = localStorage.getItem('midan:signals:v1'); if (raw) state.signals = JSON.parse(raw); } catch(e){} }
+function saveSignals(){ try { localStorage.setItem('midan:signals:v1', JSON.stringify(state.signals)); } catch(e){} }
+function loadPositions(){ try { const raw = localStorage.getItem('midan:positions:v1'); if (raw) state.positions = JSON.parse(raw); } catch(e){} }
+function savePositions(){ try { localStorage.setItem('midan:positions:v1', JSON.stringify(state.positions)); } catch(e){} }
+
+function meKey(){ return state.user.connected ? state.user.address : 'guest'; }
+
+function mkSignal(cid, author, asset, thesis, entry, target, stop, conf){
+  const id = `${cid}-${Math.random().toString(36).slice(2,8)}`;
+  return { id, cid, author, asset, thesis, entry: Number(entry), target: Number(target), stop: Number(stop), conf: Number(conf||3), status: 'open', createdAt: Date.now(), updates: [] };
+}
+function addSignal(sig){ const arr = state.signals.byEvent[sig.cid] || []; arr.unshift(sig); state.signals.byEvent[sig.cid] = arr; saveSignals(); }
+function getSignals(cid){ return state.signals.byEvent[cid] || []; }
+function updateSignalStatus(cid, sid, status){ const arr = getSignals(cid); const s = arr.find(x=> x.id===sid); if (s){ s.status = status; saveSignals(); } }
+
+function mkPosition(userKey, cid, signalId, size, entry){ return { id: `${signalId}:${userKey}`, userKey, cid, signalId, size: Number(size), entry: Number(entry), openedAt: Date.now(), closedAt: null, closePx: null }; }
+function addPosition(pos){ const k = pos.userKey; const arr = state.positions.byUser[k] || []; const idx = arr.findIndex(p=> p.id===pos.id); if (idx>=0) arr[idx]=pos; else arr.unshift(pos); state.positions.byUser[k] = arr; savePositions(); }
+function getMyPositions(cid){ const k = meKey(); const arr = state.positions.byUser[k] || []; return arr.filter(p=> p.cid===cid); }
+function closePosition(cid, signalId, px){ const k = meKey(); const arr = state.positions.byUser[k] || []; const p = arr.find(x=> x.signalId===signalId && !x.closedAt); if (p){ p.closedAt = Date.now(); p.closePx = Number(px); savePositions(); } }
+
+// Mock price engine: simple random walk around entry
+function estimatePrice(sig){
+  const t = (Date.now() - sig.createdAt) / 1000; // seconds
+  const drift = (Math.sin(t/13)+Math.cos(t/21))*0.002; // gentle oscillation
+  const noise = (Math.random()-0.5)*0.001;
+  const px = Math.max(0, sig.entry * (1 + drift + noise));
+  return Number(px.toFixed(4));
+}
+function computePnL(p, sig){ const px = estimatePrice(sig); const pnl = (px - p.entry) * p.size / Math.max(1, sig.entry); return { px, pnl: Number(pnl.toFixed(2)) }; }
+
+function renderSignalsSection(cid){
+  const canPost = !!getMyTeamId(cid) && state.user.connected;
+  const list = getSignals(cid);
+  const items = list.map(s=> {
+    const px = estimatePrice(s);
+    const distTp = ((s.target - px)/s.target*100).toFixed(1);
+    const distSl = ((px - s.stop)/Math.max(1e-9, s.stop)*100).toFixed(1);
+    const badge = s.status==='open' ? '<span class="badge green">Open for entry</span>' : `<span class="badge">${s.status}</span>`;
+    const actions = s.status==='open' ? `<button class="btn primary" data-mirror="${s.id}">Mirror</button>` : '';
+    return `
+      <article class="card">
+        <div class="title">${escapeHtml(s.asset)} <span class="subtle">by ${shortAddr(s.author)}</span></div>
+        <div class="subtle">${escapeHtml(s.thesis)}</div>
+        <div class="meta">${badge}<span class="badge">Entry ${s.entry.toFixed(4)}</span><span class="badge">TP ${s.target.toFixed(4)}</span><span class="badge">SL ${s.stop.toFixed(4)}</span><span class="badge">Conf ${s.conf}</span></div>
+        <div class="info-bar"><span>Now ~ ${px.toFixed(4)} · to TP ${distTp}% · from SL ${distSl}%</span><span>${new Date(s.createdAt).toLocaleString()}</span></div>
+        <div class="actions">${actions}</div>
+      </article>
+    `;
+  }).join('');
+  return `
+    <section class="card" style="margin-top:12px;">
+      <div class="title" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">Signals ${canPost?'<button class="btn" id="btn-new-signal">New Signal</button>':''}</div>
+      ${list.length? items : '<div class="subtle">No signals yet. Be the first to publish.</div>'}
+    </section>
+  `;
+}
+function wireSignalsSection(cid){
+  const btn = document.getElementById('btn-new-signal');
+  if (btn) btn.addEventListener('click', ()=> {
+    if (!state.user.connected) { showToast('Connect wallet to continue'); return; }
+    if (!getMyTeamId(cid)) { showToast('Join or create a team to post'); return; }
+    toggleModal('modal-signal-new', true);
+    const form = document.getElementById('form-create-signal');
+    form.onsubmit = (e)=>{
+      e.preventDefault();
+      const asset = document.getElementById('sig-asset').value.trim();
+      const thesis = document.getElementById('sig-thesis').value.trim();
+      const entry = Number(document.getElementById('sig-entry').value);
+      const target = Number(document.getElementById('sig-target').value);
+      const stop = Number(document.getElementById('sig-stop').value);
+      const conf = Number(document.getElementById('sig-conf').value);
+      if (!asset || !thesis || !entry || !target || !stop) { showToast('Fill required fields'); return; }
+      if (!(stop < entry && entry < target)) { showToast('Require SL < Entry < TP'); return; }
+      const sig = mkSignal(cid, state.user.address, asset, thesis, entry, target, stop, conf);
+      addSignal(sig);
+      toggleModal('modal-signal-new', false);
+      showToast('Signal published');
+      render();
+    };
+  });
+  document.querySelectorAll('[data-mirror]').forEach(el=> {
+    el.addEventListener('click', ()=> {
+      if (!state.user.connected) { showToast('Connect wallet to continue'); return; }
+      const sid = el.getAttribute('data-mirror');
+      toggleModal('modal-mirror', true);
+      const form = document.getElementById('form-mirror');
+      form.onsubmit = (e)=>{
+        e.preventDefault();
+        const size = Number(document.getElementById('mirror-size').value||'0');
+        const sig = getSignals(cid).find(x=> x.id===sid);
+        if (!sig) { toggleModal('modal-mirror', false); return; }
+        if (size<=0) { showToast('Enter a positive size'); return; }
+        const pos = mkPosition(meKey(), cid, sid, size, sig.entry);
+        addPosition(pos);
+        toggleModal('modal-mirror', false);
+        showToast('Paper position opened');
+        render();
+      };
+    });
+  });
+}
+
+function renderMyPaper(cid){
+  const arr = getMyPositions(cid);
+  if (!arr.length) return '';
+  const rows = arr.map(p=> {
+    const sig = getSignals(cid).find(s=> s.id===p.signalId);
+    if (!sig) return '';
+    const { px, pnl } = computePnL(p, sig);
+    const canClose = !p.closedAt;
+    const status = p.closedAt ? `Closed @ ${p.closePx?.toFixed(4)}` : 'Open';
+    return `
+      <tr>
+        <td>${escapeHtml(sig.asset)}</td>
+        <td>${p.size}</td>
+        <td>${p.entry.toFixed(4)}</td>
+        <td>${p.closedAt? p.closePx?.toFixed(4) : px.toFixed(4)}</td>
+        <td style="color:${pnl>=0?'#166534':'#9a3412'};font-weight:600;">${p.closedAt? ((p.closePx-p.entry)*p.size/sig.entry).toFixed(2) : pnl.toFixed(2)}</td>
+        <td>${status}</td>
+        <td>${canClose? `<button class="btn outline" data-close="${p.signalId}">Close</button>`:''}</td>
+      </tr>
+    `;
+  }).join('');
+  return `
+    <section class="card" style="margin-top:12px;">
+      <div class="title">Your Paper Positions</div>
+      <div style="overflow:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead><tr><th align="left">Asset</th><th align="left">Size</th><th align="left">Entry</th><th align="left">Last</th><th align="left">PnL</th><th align="left">Status</th><th></th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </section>
+  `;
+}
+function wireMyPaper(cid){
+  document.querySelectorAll('[data-close]').forEach(el=> {
+    el.addEventListener('click', ()=> {
+      const sid = el.getAttribute('data-close');
+      const sig = getSignals(cid).find(s=> s.id===sid);
+      if (!sig) return;
+      closePosition(cid, sid, estimatePrice(sig));
+      showToast('Position closed');
+      render();
+    });
+  });
+}
+
 window.addEventListener("hashchange", render);
 
 // Init
 seedMock();
 loadReactions();
 loadInvites();
+loadSignals();
+loadPositions();
 wireHeader();
 render();

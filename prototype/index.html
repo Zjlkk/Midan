@@ -186,6 +186,79 @@
       </div>
     </div>
 
+    <!-- New: Create Signal Modal -->
+    <div id="modal-signal-new" class="modal" aria-hidden="true" role="dialog" aria-modal="true">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3>New Signal</h3>
+          <button class="icon-btn" data-close-modal="modal-signal-new" aria-label="Close">✕</button>
+        </div>
+        <div class="modal-body">
+          <form id="form-create-signal" autocomplete="off">
+            <label class="field">
+              <span>Asset / Ticker</span>
+              <input type="text" id="sig-asset" placeholder="e.g., SONIC/USDC or $SONIC" required maxlength="24" />
+            </label>
+            <label class="field">
+              <span>Thesis / Catalyst</span>
+              <textarea id="sig-thesis" rows="3" placeholder="Why this, and what to watch" required minlength="10" maxlength="240"></textarea>
+            </label>
+            <div class="segmented" style="gap:10px; flex-wrap:wrap; margin: 6px 0;">
+              <label class="field" style="min-width:180px;">
+                <span>Entry Price</span>
+                <input type="number" id="sig-entry" min="0" step="0.0001" placeholder="e.g., 1.0000" required />
+              </label>
+              <label class="field" style="min-width:180px;">
+                <span>Target (TP)</span>
+                <input type="number" id="sig-target" min="0" step="0.0001" placeholder="e.g., 1.2000" required />
+              </label>
+              <label class="field" style="min-width:180px;">
+                <span>Invalidation (SL)</span>
+                <input type="number" id="sig-stop" min="0" step="0.0001" placeholder="e.g., 0.9000" required />
+              </label>
+            </div>
+            <label class="field">
+              <span>Confidence</span>
+              <select id="sig-conf">
+                <option value="1">Low</option>
+                <option value="2">Med‑Low</option>
+                <option value="3" selected>Medium</option>
+                <option value="4">Med‑High</option>
+                <option value="5">High</option>
+              </select>
+            </label>
+            <div class="modal-actions">
+              <button type="button" class="btn" data-close-modal="modal-signal-new">Cancel</button>
+              <button type="submit" class="btn primary">Publish</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- New: Mirror Signal Modal -->
+    <div id="modal-mirror" class="modal" aria-hidden="true" role="dialog" aria-modal="true">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3>Mirror (Paper)</h3>
+          <button class="icon-btn" data-close-modal="modal-mirror" aria-label="Close">✕</button>
+        </div>
+        <div class="modal-body">
+          <form id="form-mirror" autocomplete="off">
+            <div class="helper">Choose a virtual size for your paper position.</div>
+            <label class="field">
+              <span>Size (virtual)</span>
+              <input type="number" id="mirror-size" min="1" step="1" value="100" />
+            </label>
+            <div class="modal-actions">
+              <button type="button" class="btn" data-close-modal="modal-mirror">Cancel</button>
+              <button type="submit" class="btn primary">Open Position</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
     <script src="app.js"></script>
