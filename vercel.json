@@ -4,6 +4,7 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "routes": [
+    { "src": "^/$", "dest": "/prototype/" },
     { "src": "/prototype/(.*)", "dest": "/prototype/$1" },
     { "src": "/team-chat/(.*)", "dest": "/team-chat/$1" }
   ],
