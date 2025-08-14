@@ -93,13 +93,29 @@ function shortAddr(a) { return `${a.slice(0, 6)}…${a.slice(-4)}`; }
 function getMyTeamId(cid) { return state.user.memberships[cid] || null; }
 function hasAnyMembership() { return Object.keys(state.user.memberships).length > 0; }
 
-function showToast(msg) { const t = document.getElementById("toast"); t.textContent = msg; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 1800); }
+function showToast(msg) { const t = document.getElementById("toast"); t.textContent = `✅ ${msg}`; t.classList.add("show"); try{ if(navigator.vibrate) navigator.vibrate(10);}catch(e){} setTimeout(() => t.classList.remove("show"), 1800); }
 function setHash(path) { window.location.hash = `#${path}`; }
 function parseHash() { const h = window.location.hash.slice(1) || "/events"; const url = new URL(h, window.location.origin); return { path: url.pathname, search: url.searchParams }; }
+
+// Helpers for readability/maintainability
+function getEventStatus(evt){ const now = Date.now(); return (now < evt.startTs) ? 'Upcoming' : (now > evt.endTs ? 'Completed' : 'Ongoing'); }
+function formatDateRange(startTs, endTs){ try { return `${new Date(startTs).toLocaleDateString()} – ${new Date(endTs).toLocaleDateString()}`; } catch(e){ return ''; } }
 
 function render() {
   const root = document.getElementById("app-root");
   const { path, search } = parseHash();
+  // dynamic title
+  try {
+    if (path === '/events') document.title = 'Explore Events — Midan';
+    else if (path === '/me/teams') document.title = 'My Teams — Midan';
+    else if (path.startsWith('/competition/')) {
+      const cid = path.split('/')[2];
+      const c = state.competitions.find(x=> x.id===cid);
+      document.title = c ? `${c.name} — Midan` : 'Event — Midan';
+    } else {
+      document.title = 'Midan';
+    }
+  } catch(e){}
 
   // Header buttons state
   document.getElementById("btn-my-team").disabled = !hasAnyMembership();
@@ -177,10 +193,12 @@ function renderEvents(root) {
   const f = readEventFilters();
   const events = filterEvents(state.competitions, f);
   const allActive = !f.type && !f.status; // All chip active when no type/status
-  const topTrending = [...state.competitions].sort((a,b)=> getEventTrendingScore(b) - getEventTrendingScore(a)).slice(0,3);
-  const trendingHtml = topTrending.length ? (`<section class="trending-strip"><span class="label">Top Trending</span>` + topTrending.map(ev => {
-    const score = getEventTrendingScore(ev);
-    const hot = getReactionCounts(ev.id)['🔥'] || 0;
+  const trendingWithHot = [...state.competitions]
+    .map(ev => ({ ev, hot: (getReactionCounts(ev.id)['🔥'] || 0) }))
+    .filter(x => x.hot > 0)
+    .sort((a,b)=> b.hot - a.hot)
+    .slice(0,3);
+  const trendingHtml = trendingWithHot.length ? (`<section class="trending-strip"><span class="label">Top Trending</span>` + trendingWithHot.map(({ev, hot}) => {
     return `<span class=\"chip soft item\" data-open-comp=\"${ev.id}\" title=\"🔥 ${hot} — ${escapeHtml(ev.name)}\">🔥 ${hot} · ${escapeHtml(ev.name)}</span>`;
   }).join('') + `</section>`) : '';
 
@@ -295,7 +313,8 @@ function renderSortOption(value, label, selected){ return `<option value="${valu
 
 function renderEventCard(c) {
   const now = Date.now();
-  const status = now < c.startTs ? 'Upcoming' : (now > c.endTs ? 'Completed' : 'Ongoing');
+  const status = getEventStatus(c);
+  const onload = c.banner ? "this.classList.remove('loading')" : "";
   const typeClass = (
     c.type==='trade' || c.type==='competition' ? 'type-blue' :
     c.type==='hackathon' || c.type==='alpha' ? 'type-purple' :
@@ -314,7 +333,7 @@ function renderEventCard(c) {
   const memberCount = teams.reduce((acc,t)=> acc + t.members.length, 0);
   const tagPills = (c.tags||[]).slice(0,2).map(t=> `<span class=\"tag-pill\" data-type-filter=\"${c.type}\">${t}</span>`).join('');
   const more = (c.tags||[]).length>2 ? `<span class=\"tag-pill\" title=\"More\">+${(c.tags||[]).length-2}</span>`: '';
-  const coverHtml = c.banner ? `<div class=\"cover\"><img class=\"cover-img\" src=\"${escapeHtml(c.banner)}\" alt=\"${escapeHtml(c.name)}\"/></div>` : `<div class=\"cover ${coverClass}\"></div>`;
+  const coverHtml = c.banner ? `<div class=\"cover\"><img loading=\"lazy\" class=\"cover-img loading\" src=\"${escapeHtml(c.banner)}\" alt=\"${escapeHtml(c.name)}\" onload=\"${onload}\"/></div>` : `<div class=\"cover ${coverClass}\"></div>`;
   const dom = getDominantReaction(c.id);
   let mood = '';
   if (dom.count > 0) {
@@ -338,7 +357,7 @@ function renderEventCard(c) {
       </div>
       ${reacts}
       <div class="info-bar">
-        <span>${new Date(c.startTs).toLocaleDateString()} – ${new Date(c.endTs).toLocaleDateString()}</span>
+        <span>${formatDateRange(c.startTs, c.endTs)}</span>
         <span>Teams: ${teamCount}${c.teamCap?`/${c.teamCap}`:''} · Members: ${memberCount}</span>
       </div>
     </article>
@@ -366,7 +385,7 @@ function renderCompetitionOverview(root, cid) {
   const c = state.competitions.find(x => x.id === cid);
   if (!c) { root.innerHTML = `<div class="card"><div class="title">Competition not found</div></div>`; return; }
   const now = Date.now();
-  const status = now < c.startTs ? 'Upcoming' : (now > c.endTs ? 'Completed' : 'Ongoing');
+  const status = getEventStatus(c);
 
   // Record invite ref opens (per session, dedup)
   const { search } = parseHash();
@@ -393,7 +412,7 @@ function renderCompetitionOverview(root, cid) {
         <h2>${escapeHtml(c.name)}</h2>
         <div class="meta">
           <span class="badge">${status}</span>
-          <span class="badge">${new Date(c.startTs).toLocaleDateString()} – ${new Date(c.endTs).toLocaleDateString()}</span>
+          <span class="badge">${formatDateRange(c.startTs, c.endTs)}</span>
         </div>
         <p class="subtle" style="margin-top:8px;">${escapeHtml(c.subtitle)}</p>
       </div>
@@ -703,6 +722,7 @@ function openCreateModal(cid) {
   if (!state.user.connected) { showToast("Connect wallet to continue"); return; }
   if (getMyTeamId(cid)) { showToast("You’re already in a team for this competition"); return; }
   toggleModal("modal-create", true);
+  setTimeout(()=>{ const first = document.getElementById('create-name'); if (first) first.focus(); }, 50);
   const radios = document.querySelectorAll('input[name="privacy"]');
   const codeField = document.getElementById("create-code-field");
   radios.forEach(r => r.addEventListener('change', () => { const isPrivate = document.querySelector('input[name="privacy"]:checked').value === 'private'; codeField.hidden = !isPrivate; }));
@@ -767,6 +787,7 @@ function openCreateEventModal() {
   if (!state.user.connected) { showToast('Connect wallet to continue'); return; }
   const modalId = 'modal-create-event';
   toggleModal(modalId, true);
+  setTimeout(()=>{ const first = document.getElementById('create-evt-name'); if (first) first.focus(); }, 50);
   const form = document.getElementById('form-create-event');
   if (!form) return;
   const capField = document.getElementById('cap-field');
@@ -784,6 +805,7 @@ function wireHeader() {
   });
   const ce = document.getElementById('btn-create-event');
   if (ce) ce.addEventListener('click', openCreateEventModal);
+
   document.querySelectorAll("[data-close-modal]").forEach((el) => { el.addEventListener("click", () => toggleModal(el.getAttribute("data-close-modal"), false)); });
 
   const form = document.getElementById('form-create-event');
@@ -836,6 +858,7 @@ function wireHeader() {
   }
 }
 
+// Extend reactions to track history for sparklines
 function getReactionCounts(eventId) {
   const key = String(eventId);
   const base = state.reactions.counts[key] || { '🔥': 0 };
@@ -845,6 +868,7 @@ function getReactionCounts(eventId) {
 function getUserReaction(eventId) { return state.reactions.user[String(eventId)] || null; }
 function saveReactions(){ try { localStorage.setItem('midan:reactions:v1', JSON.stringify(state.reactions)); } catch(e){} }
 function loadReactions(){ try { const raw = localStorage.getItem('midan:reactions:v1'); if (raw){ const parsed = JSON.parse(raw); state.reactions = { counts: parsed.counts||{}, user: parsed.user||{} }; } } catch(e){} }
+
 function setUserReaction(eventId, emoji) {
   const key = String(eventId);
   const counts = getReactionCounts(key);
@@ -852,8 +876,11 @@ function setUserReaction(eventId, emoji) {
   if (prev && counts[prev] > 0) counts[prev] -= 1;
   state.reactions.user[key] = emoji;
   if (emoji) counts[emoji] = (counts[emoji] || 0) + 1;
+
   saveReactions();
 }
+
+
 function updateReactionDom(eventId){
   const counts = getReactionCounts(eventId);
   const selected = getUserReaction(eventId);
@@ -892,6 +919,53 @@ function floatEmojiFromButton(btn, emoji){
     setTimeout(()=> { if (el && el.parentNode) el.parentNode.removeChild(el); }, 620);
   } catch(e){}
 }
+
+// Progressive reaction burst: fly 🔥 to Top Trending chip and flash it
+function animateFlameToTrending(eventId, sourceBtn){
+  try {
+    if (!sourceBtn) return;
+    const src = sourceBtn.getBoundingClientRect();
+    // Re-render to refresh Trending strip counts/presence
+    render();
+    // Wait a frame for DOM
+    setTimeout(()=>{
+      const destEl = document.querySelector(`.trending-strip [data-open-comp="${String(eventId)}"]`);
+      if (!destEl) return;
+      const dst = destEl.getBoundingClientRect();
+      const flame = document.createElement('div');
+      flame.textContent = '🔥';
+      flame.style.position = 'fixed';
+      flame.style.zIndex = '1000';
+      document.body.appendChild(flame);
+      const start = { x: src.left + src.width/2, y: src.top + src.height/2 };
+      const end = { x: dst.left + dst.width/2, y: dst.top + dst.height/2 };
+      const ctrl = { x: (start.x + end.x)/2, y: Math.min(start.y, end.y) - 120 };
+      const t0 = performance.now();
+      const dur = 700;
+      function lerp(a,b,t){ return a + (b-a)*t; }
+      function quadBezier(p0, p1, p2, t){
+        const x = (1-t)*(1-t)*p0.x + 2*(1-t)*t*p1.x + t*t*p2.x;
+        const y = (1-t)*(1-t)*p0.y + 2*(1-t)*t*p1.y + t*t*p2.y;
+        return { x, y };
+      }
+      function step(t){
+        const k = Math.min(1, (t - t0) / dur);
+        const p = quadBezier(start, ctrl, end, k);
+        flame.style.left = `${Math.round(p.x)}px`;
+        flame.style.top = `${Math.round(p.y)}px`;
+        flame.style.transform = 'translate(-50%, -50%) scale(1.1)';
+        flame.style.opacity = String(1 - k*0.2);
+        if (k < 1) requestAnimationFrame(step); else {
+          if (flame && flame.parentNode) flame.parentNode.removeChild(flame);
+          destEl.classList.add('flash');
+          setTimeout(()=> destEl.classList.remove('flash'), 600);
+        }
+      }
+      requestAnimationFrame(step);
+    }, 0);
+  } catch(e){}
+}
+
 function handleReactionClick(eventId, emoji){
   if (!state.user.connected) { showToast('Connect wallet to react'); return; }
   const cur = getUserReaction(eventId);
@@ -900,6 +974,7 @@ function handleReactionClick(eventId, emoji){
   const updated = updateReactionDom(eventId);
   const btn = document.querySelector(`[data-react="${emoji}"][data-evt="${String(eventId)}"]`);
   if (btn) { pulseReactButton(btn); floatEmojiFromButton(btn, emoji); }
+  if (willSet === '🔥') animateFlameToTrending(eventId, btn);
   if (!updated) render();
 }
 function renderReactionButton(eventId, emoji){
@@ -911,6 +986,7 @@ function renderReactionButton(eventId, emoji){
   const title = state.user.connected ? "" : "Connect wallet to react";
   return `<button class=\"btn outline\" data-react=\"${emoji}\" data-evt=\"${String(eventId)}\" aria-pressed=\"${selected?'true':'false'}\" title=\"${title}\" style=\"padding:4px 8px;border-radius:10px;${base}${dis}\">${emoji} <span>${count}</span></button>`;
 }
+
 
 function confettiBurst(durationMs){
   const dur = typeof durationMs === 'number' ? durationMs : 900;
@@ -966,7 +1042,7 @@ function getInviteStats(eventId){
   return { total: cur.total, topRefs: entries.slice(0,3) };
 }
 function myReferralKey(){ return state.user.connected ? shortAddr(state.user.address) : 'guest'; }
-async function copyText(text){ try { if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(text); } else { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); } showToast('Invite link copied'); } catch(e){ showToast('Copy failed'); } }
+async function copyText(text){ try { if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(text); } else { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); } showToast('Link copied'); } catch(e){ showToast('Copy failed'); } }
 
 window.addEventListener("hashchange", render);
 
