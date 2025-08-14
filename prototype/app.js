@@ -166,9 +166,7 @@ function filterEvents(events, f) {
       return st === f.status;
     });
   }
-  if (f.sort === 'newest') arr.sort((a,b)=> b.startTs - a.startTs);
-  else if (f.sort === 'ending') arr.sort((a,b)=> a.endTs - b.endTs);
-  else if (f.sort === 'trending') arr.sort((a,b)=> getEventTrendingScore(b) - getEventTrendingScore(a));
+  if (f.sort === 'trending') arr.sort((a,b)=> getEventTrendingScore(b) - getEventTrendingScore(a));
   else if (f.sort === 'active') arr.sort((a,b)=> (Date.now()>b.startTs && Date.now()<b.endTs ? 1:0) - (Date.now()>a.startTs && Date.now()<a.endTs ? 1:0));
   return arr;
 }
@@ -239,8 +237,6 @@ function renderEvents(root) {
         <select id="flt-sort" class="btn outline" style="padding:8px 10px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:#0f172a;">
           ${renderSortOption('active','Sort: Active', f.sort)}
           ${renderSortOption('trending','Trending', f.sort)}
-          ${renderSortOption('newest','Newest', f.sort)}
-          ${renderSortOption('ending','Ending Soon', f.sort)}
         </select>
       </div>
       <div class="spacer"></div>
@@ -313,11 +309,11 @@ function renderEventCard(c) {
   const dom = getDominantReaction(c.id);
   let mood = '';
   if (dom.count > 0) {
-    const m = dom.emoji==='🔥' ? {cls:'orange', text:'Hot'} : (dom.emoji==='🎉' ? {cls:'purple', text:'Celebrating'} : {cls:'green', text:'Well‑liked'});
-    mood = `<span class=\"badge ${m.cls}\" title=\"Dominant reaction\">${m.text} ${dom.emoji}</span>`;
+    const m = {cls:'orange', text:'Hot'};
+    mood = `<span class=\"badge ${m.cls}\" title=\"Dominant reaction\">${m.text} 🔥</span>`;
   }
-  const ctaText = dom.emoji==='🔥' && dom.count>0 ? 'Enter — HOT' : dom.emoji==='🎉' && dom.count>0 ? 'Enter — Join 🎉' : dom.emoji==='👍' && dom.count>0 ? 'Enter — Popular' : 'Enter';
-  const reacts = `<div class=\"reactions\" style=\"display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;\">${renderReactionButton(c.id,'🎉')}${renderReactionButton(c.id,'🔥')}${renderReactionButton(c.id,'👍')}</div>`;
+  const ctaText = dom.count>0 ? 'Enter — HOT' : 'Enter';
+  const reacts = `<div class=\"reactions\" style=\"display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;\">${renderReactionButton(c.id,'🔥')}</div>`;
   return `
     <article class="card">
       ${coverHtml}
@@ -812,7 +808,7 @@ function wireHeader() {
 
 function getReactionCounts(eventId) {
   const key = String(eventId);
-  const base = state.reactions.counts[key] || { '🎉': 0, '🔥': 0, '👍': 0 };
+  const base = state.reactions.counts[key] || { '🔥': 0 };
   state.reactions.counts[key] = base;
   return base;
 }
@@ -846,13 +842,35 @@ function updateReactionDom(eventId){
   return true;
 }
 function pulseReactButton(btn){ try { btn.style.transition = 'transform 120ms ease'; const prev = btn.style.transform || ''; btn.style.transform = 'scale(1.12)'; if (navigator.vibrate) navigator.vibrate(10); setTimeout(()=> { btn.style.transform = prev || ''; }, 140); } catch(e){} }
+function floatEmojiFromButton(btn, emoji){
+  try {
+    const r = btn.getBoundingClientRect();
+    const el = document.createElement('div');
+    el.textContent = emoji;
+    el.style.position = 'fixed';
+    el.style.left = `${Math.round(r.left + r.width/2)}px`;
+    el.style.top = `${Math.round(r.top + r.height/2)}px`;
+    el.style.transform = 'translate(-50%, -50%) scale(1)';
+    el.style.transition = 'transform 600ms ease, opacity 600ms ease';
+    el.style.opacity = '1';
+    el.style.zIndex = '1000';
+    document.body.appendChild(el);
+    requestAnimationFrame(()=> {
+      el.style.transform = 'translate(-50%, -120%) scale(1.4)';
+      el.style.opacity = '0';
+    });
+    setTimeout(()=> { if (el && el.parentNode) el.parentNode.removeChild(el); }, 620);
+  } catch(e){}
+}
 function handleReactionClick(eventId, emoji){
   if (!state.user.connected) { showToast('Connect wallet to react'); return; }
   const cur = getUserReaction(eventId);
-  if (cur === emoji) { setUserReaction(eventId, null); } else { setUserReaction(eventId, emoji); }
+  const willSet = (cur === emoji) ? null : emoji;
+  setUserReaction(eventId, willSet);
   const updated = updateReactionDom(eventId);
   const btn = document.querySelector(`[data-react="${emoji}"][data-evt="${String(eventId)}"]`);
-  if (btn) pulseReactButton(btn);
+  if (btn) { pulseReactButton(btn); floatEmojiFromButton(btn, emoji); }
+  if (!cur && willSet) { try { confettiBurst(420); } catch(e){} }
   if (!updated) render();
 }
 function renderReactionButton(eventId, emoji){
@@ -891,13 +909,11 @@ function confettiBurst(durationMs){
 
 function getDominantReaction(eventId){
   const c = getReactionCounts(eventId);
-  const pairs = [['🔥', c['🔥']||0], ['🎉', c['🎉']||0], ['👍', c['👍']||0]];
-  pairs.sort((a,b)=> b[1]-a[1]);
-  return { emoji: pairs[0][0], count: pairs[0][1] };
+  return { emoji: '🔥', count: c['🔥']||0 };
 }
 function getEventTrendingScore(evt){
   const c = getReactionCounts(evt.id);
-  const base = (c['🔥']||0)*3 + (c['🎉']||0)*2 + (c['👍']||0)*1;
+  const base = (c['🔥']||0) * 1; // single emoji weight
   const now = Date.now();
   const ongoingBoost = (now>evt.startTs && now<evt.endTs) ? 1 : 0;
   const upcomingBoost = (now<=evt.startTs) ? 0.2 : 0;
