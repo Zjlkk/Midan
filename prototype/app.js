@@ -18,6 +18,7 @@ const state = {
   },
 };
 state.reactions = { counts: {}, user: {} };
+state.invites = { byEvent: {} };
 
 function seedMock() {
   const now = Date.now();
@@ -176,6 +177,12 @@ function renderEvents(root) {
   const f = readEventFilters();
   const events = filterEvents(state.competitions, f);
   const allActive = !f.type && !f.status; // All chip active when no type/status
+  const topTrending = [...state.competitions].sort((a,b)=> getEventTrendingScore(b) - getEventTrendingScore(a)).slice(0,3);
+  const trendingHtml = topTrending.length ? (`<section class="trending-strip"><span class="label">Top Trending</span>` + topTrending.map(ev => {
+    const score = getEventTrendingScore(ev);
+    const hot = getReactionCounts(ev.id)['🔥'] || 0;
+    return `<span class=\"chip solid orange item\" data-open-comp=\"${ev.id}\" title=\"🔥 ${hot} — ${escapeHtml(ev.name)}\">🔥 ${hot} · ${escapeHtml(ev.name)}</span>`;
+  }).join('') + `</section>`) : '';
 
   root.innerHTML = `
     <section class="intro">
@@ -241,6 +248,8 @@ function renderEvents(root) {
       </div>
       <div class="spacer"></div>
     </section>
+
+    ${trendingHtml}
 
     <section>
       <div class="card-grid" id="comp-grid"></div>
@@ -359,11 +368,24 @@ function renderCompetitionOverview(root, cid) {
   const now = Date.now();
   const status = now < c.startTs ? 'Upcoming' : (now > c.endTs ? 'Completed' : 'Ongoing');
 
+  // Record invite ref opens (per session, dedup)
+  const { search } = parseHash();
+  const ref = search.get('ref');
+  const myRef = myReferralKey();
+  if (ref && ref !== myRef) {
+    const seenKey = `seen:${cid}:${ref}`;
+    if (!sessionStorage.getItem(seenKey)) {
+      recordInviteOpen(cid, ref);
+      sessionStorage.setItem(seenKey, '1');
+    }
+  }
+
   // Filters data
   const filters = getUIFilters();
   const teamsAll = getTeams(cid);
   const teams = filterAndSortTeams(teamsAll, filters);
   const totalMembers = teamsAll.reduce((acc,t)=> acc + t.members.length, 0);
+  const inviteStats = getInviteStats(cid);
 
   root.innerHTML = `
     <section class="team-header">
@@ -377,6 +399,7 @@ function renderCompetitionOverview(root, cid) {
       </div>
       <div class="header-cta">
         <button class="btn primary" id="ui-create">Create Team</button>
+        <button class="btn outline" id="evt-share">Copy Invite Link</button>
       </div>
     </section>
 
@@ -384,12 +407,14 @@ function renderCompetitionOverview(root, cid) {
       <div class="item">📋 <strong>${teamsAll.length}</strong> Teams</div>
       <div class="item">👥 <strong>${totalMembers}</strong> Members</div>
       <div class="item">⏱️ <strong>${status}</strong></div>
+      <div class="item">🔗 <strong>${inviteStats.total}</strong> Invites opened</div>
     </section>
 
     <section class="card" style="margin-bottom:12px;">
       <div class="title">About</div>
       <div class="subtle">${escapeHtml(c.subtitle)}</div>
       <div class="rules"><strong>Rules</strong>: Team formation and joining rules: one wallet can create one team or join one team per competition. Private teams require a join code.</div>
+      <div class="helper" style="margin-top:6px;">Share your invite link to bring teammates: includes a referral parameter for lightweight tracking.</div>
     </section>
 
     <section class="controls">
@@ -445,6 +470,11 @@ function renderCompetitionOverview(root, cid) {
   }
 
   document.getElementById("ui-create").addEventListener("click", () => openCreateModal(cid));
+  document.getElementById('evt-share').addEventListener('click', async ()=> {
+    const refKey = myReferralKey();
+    const shareUrl = `${location.origin}${location.pathname}#${`/competition/${cid}`}?ref=${encodeURIComponent(refKey)}`;
+    await copyText(shareUrl);
+  });
   document.getElementById("flt-joinable").addEventListener("change", () => { setUIFilters({ joinable: document.getElementById("flt-joinable").checked }); render(); });
   document.getElementById("flt-public").addEventListener("change", () => { setUIFilters({ publicOnly: document.getElementById("flt-public").checked }); render(); });
   document.getElementById("flt-private").addEventListener("change", () => { setUIFilters({ privateOnly: document.getElementById("flt-private").checked }); render(); });
@@ -920,10 +950,30 @@ function getEventTrendingScore(evt){
   return base + ongoingBoost + upcomingBoost;
 }
 
+function saveInvites(){ try { localStorage.setItem('midan:invites:v1', JSON.stringify(state.invites)); } catch(e){} }
+function loadInvites(){ try { const raw = localStorage.getItem('midan:invites:v1'); if (raw){ const parsed = JSON.parse(raw); state.invites = { byEvent: parsed.byEvent || {} }; } } catch(e){} }
+function recordInviteOpen(eventId, ref){
+  const key = String(eventId);
+  const cur = state.invites.byEvent[key] || { total: 0, byRef: {} };
+  cur.total += 1;
+  cur.byRef[ref] = (cur.byRef[ref] || 0) + 1;
+  state.invites.byEvent[key] = cur;
+  saveInvites();
+}
+function getInviteStats(eventId){
+  const cur = state.invites.byEvent[String(eventId)] || { total: 0, byRef: {} };
+  const entries = Object.entries(cur.byRef);
+  entries.sort((a,b)=> b[1]-a[1]);
+  return { total: cur.total, topRefs: entries.slice(0,3) };
+}
+function myReferralKey(){ return state.user.connected ? shortAddr(state.user.address) : 'guest'; }
+async function copyText(text){ try { if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(text); } else { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); } showToast('Invite link copied'); } catch(e){ showToast('Copy failed'); } }
+
 window.addEventListener("hashchange", render);
 
 // Init
 seedMock();
 loadReactions();
+loadInvites();
 wireHeader();
 render();
