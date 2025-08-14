@@ -795,11 +795,12 @@ function wireHeader() {
 function getReactionCounts(eventId) {
   const key = String(eventId);
   const base = state.reactions.counts[key] || { '🎉': 0, '🔥': 0, '👍': 0 };
-  // Ensure defaults exist
   state.reactions.counts[key] = base;
   return base;
 }
 function getUserReaction(eventId) { return state.reactions.user[String(eventId)] || null; }
+function saveReactions(){ try { localStorage.setItem('midan:reactions:v1', JSON.stringify(state.reactions)); } catch(e){} }
+function loadReactions(){ try { const raw = localStorage.getItem('midan:reactions:v1'); if (raw){ const parsed = JSON.parse(raw); state.reactions = { counts: parsed.counts||{}, user: parsed.user||{} }; } } catch(e){} }
 function setUserReaction(eventId, emoji) {
   const key = String(eventId);
   const counts = getReactionCounts(key);
@@ -807,19 +808,43 @@ function setUserReaction(eventId, emoji) {
   if (prev && counts[prev] > 0) counts[prev] -= 1;
   state.reactions.user[key] = emoji;
   if (emoji) counts[emoji] = (counts[emoji] || 0) + 1;
+  saveReactions();
 }
+function updateReactionDom(eventId){
+  const counts = getReactionCounts(eventId);
+  const selected = getUserReaction(eventId);
+  const btns = document.querySelectorAll(`[data-react][data-evt="${String(eventId)}"]`);
+  if (!btns.length) return false;
+  btns.forEach(btn => {
+    const emoji = btn.getAttribute('data-react');
+    const count = counts[emoji] || 0;
+    const isSel = selected === emoji;
+    const span = btn.querySelector('span'); if (span) span.textContent = String(count);
+    btn.setAttribute('aria-pressed', isSel ? 'true' : 'false');
+    btn.style.borderColor = isSel ? '#6366f1' : '';
+    btn.style.background = isSel ? '#eef2ff' : '';
+    btn.style.transform = isSel ? 'scale(1.04)' : '';
+  });
+  return true;
+}
+function pulseReactButton(btn){ try { btn.style.transition = 'transform 120ms ease'; const prev = btn.style.transform || ''; btn.style.transform = 'scale(1.12)'; if (navigator.vibrate) navigator.vibrate(10); setTimeout(()=> { btn.style.transform = prev || ''; }, 140); } catch(e){} }
 function handleReactionClick(eventId, emoji){
   if (!state.user.connected) { showToast('Connect wallet to react'); return; }
   const cur = getUserReaction(eventId);
   if (cur === emoji) { setUserReaction(eventId, null); } else { setUserReaction(eventId, emoji); }
-  render();
+  const updated = updateReactionDom(eventId);
+  const btn = document.querySelector(`[data-react="${emoji}"][data-evt="${String(eventId)}"]`);
+  if (btn) pulseReactButton(btn);
+  if (!updated) render();
 }
 function renderReactionButton(eventId, emoji){
   const counts = getReactionCounts(eventId);
   const selected = getUserReaction(eventId) === emoji;
   const count = counts[emoji] || 0;
-  const style = selected ? "border-color:#6366f1;background:#eef2ff;transform:scale(1.04);" : "opacity:0.9;";
-  return `<button class=\"btn outline\" data-react=\"${emoji}\" data-evt=\"${String(eventId)}\" style=\"padding:4px 8px;border-radius:10px;${style}\">${emoji} <span>${count}</span></button>`;
+  const base = selected ? "border-color:#6366f1;background:#eef2ff;transform:scale(1.04);" : "opacity:0.9;";
+  const dis = state.user.connected ? "" : "opacity:0.55;cursor:not-allowed;";
+  const title = state.user.connected ? "" : "Connect wallet to react";
+  return `<button class=\"btn outline\" data-react=\"${emoji}\" data-evt=\"${String(eventId)}\" aria-pressed=\"${selected?'true':'false'}\" title=\"${title}\" style=\"padding:4px 8px;border-radius:10px;${base}${dis}\">${emoji} <span>${count}</span></button>`;
 }
 
 function confettiBurst(durationMs){
@@ -850,5 +875,6 @@ window.addEventListener("hashchange", render);
 
 // Init
 seedMock();
+loadReactions();
 wireHeader();
 render();
