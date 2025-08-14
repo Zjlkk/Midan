@@ -929,39 +929,49 @@ function animateFlameToTrending(eventId, sourceBtn){
     render();
     // Wait a frame for DOM
     setTimeout(()=>{
-      const destEl = document.querySelector(`.trending-strip [data-open-comp="${String(eventId)}"]`);
+      const selector = `.trending-strip [data-open-comp="${String(eventId)}"]`;
+      const destEl = document.querySelector(selector);
       if (!destEl) return;
-      const dst = destEl.getBoundingClientRect();
-      const flame = document.createElement('div');
-      flame.textContent = '🔥';
-      flame.style.position = 'fixed';
-      flame.style.zIndex = '1000';
-      document.body.appendChild(flame);
-      const start = { x: src.left + src.width/2, y: src.top + src.height/2 };
-      const end = { x: dst.left + dst.width/2, y: dst.top + dst.height/2 };
-      const ctrl = { x: (start.x + end.x)/2, y: Math.min(start.y, end.y) - 120 };
-      const t0 = performance.now();
-      const dur = 700;
-      function lerp(a,b,t){ return a + (b-a)*t; }
-      function quadBezier(p0, p1, p2, t){
-        const x = (1-t)*(1-t)*p0.x + 2*(1-t)*t*p1.x + t*t*p2.x;
-        const y = (1-t)*(1-t)*p0.y + 2*(1-t)*t*p1.y + t*t*p2.y;
-        return { x, y };
-      }
-      function step(t){
-        const k = Math.min(1, (t - t0) / dur);
-        const p = quadBezier(start, ctrl, end, k);
-        flame.style.left = `${Math.round(p.x)}px`;
-        flame.style.top = `${Math.round(p.y)}px`;
-        flame.style.transform = 'translate(-50%, -50%) scale(1.1)';
-        flame.style.opacity = String(1 - k*0.2);
-        if (k < 1) requestAnimationFrame(step); else {
-          if (flame && flame.parentNode) flame.parentNode.removeChild(flame);
-          destEl.classList.add('flash');
-          setTimeout(()=> destEl.classList.remove('flash'), 600);
+      const ensureVisibleAndAnimate = () => {
+        const dst = destEl.getBoundingClientRect();
+        const flame = document.createElement('div');
+        flame.textContent = '🔥';
+        flame.style.position = 'fixed';
+        flame.style.zIndex = '1000';
+        document.body.appendChild(flame);
+        const start = { x: src.left + src.width/2, y: src.top + src.height/2 };
+        const end = { x: dst.left + dst.width/2, y: dst.top + dst.height/2 };
+        const ctrl = { x: (start.x + end.x)/2, y: Math.min(start.y, end.y) - 120 };
+        const t0 = performance.now();
+        const dur = 700;
+        function quadBezier(p0, p1, p2, t){
+          const x = (1-t)*(1-t)*p0.x + 2*(1-t)*t*p1.x + t*t*p2.x;
+          const y = (1-t)*(1-t)*p0.y + 2*(1-t)*t*p1.y + t*t*p2.y;
+          return { x, y };
         }
+        function step(t){
+          const k = Math.min(1, (t - t0) / dur);
+          const p = quadBezier(start, ctrl, end, k);
+          flame.style.left = `${Math.round(p.x)}px`;
+          flame.style.top = `${Math.round(p.y)}px`;
+          flame.style.transform = 'translate(-50%, -50%) scale(1.1)';
+          flame.style.opacity = String(1 - k*0.2);
+          if (k < 1) requestAnimationFrame(step); else {
+            if (flame && flame.parentNode) flame.parentNode.removeChild(flame);
+            destEl.classList.add('flash');
+            setTimeout(()=> destEl.classList.remove('flash'), 600);
+          }
+        }
+        requestAnimationFrame(step);
+      };
+      const rect = destEl.getBoundingClientRect();
+      const offscreen = rect.bottom < 0 || rect.top > window.innerHeight;
+      if (offscreen) {
+        destEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(ensureVisibleAndAnimate, 220);
+      } else {
+        ensureVisibleAndAnimate();
       }
-      requestAnimationFrame(step);
     }, 0);
   } catch(e){}
 }
