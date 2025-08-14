@@ -780,7 +780,7 @@ function joinPrivate(cid, teamId, code) {
 
 function copyShare() { const el = document.getElementById("share-url"); if (!el) return; el.select(); document.execCommand("copy"); showToast("Link copied"); }
 function toggleModal(id, show) { const m = document.getElementById(id); if (!m) return; m.setAttribute("aria-hidden", show ? "false" : "true"); }
-function escapeHtml(str) { return str.replace(/[&<>"]+/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot; }[c] )); }
+function escapeHtml(str) { return str.replace(/[&<>"]+/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c] )); }
 
 // Header buttons
 function openCreateEventModal() {
