@@ -991,11 +991,20 @@ function handleReactionClick(eventId, emoji){
   const cur = getUserReaction(eventId);
   const willSet = (cur === emoji) ? null : emoji;
   setUserReaction(eventId, willSet);
-  const updated = updateReactionDom(eventId);
+  updateReactionDom(eventId);
   const btn = document.querySelector(`[data-react="${emoji}"][data-evt="${String(eventId)}"]`);
-  if (btn) { pulseReactButton(btn); floatEmojiFromButton(btn, emoji); }
-  if (willSet === '🔥') animateFlameToTrending(eventId, btn);
-  if (!updated) render();
+  if (btn) {
+    pulseReactButton(btn);
+    if (willSet) floatEmojiFromButton(btn, emoji);
+  }
+  
+  if (emoji === '🔥') {
+    if (willSet) {
+      animateFlameToTrending(eventId, btn);
+    } else {
+      render(); // Rerender to update trending bar on removal
+    }
+  }
 }
 function renderReactionButton(eventId, emoji){
   const counts = getReactionCounts(eventId);
