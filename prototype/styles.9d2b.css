@@ -65,8 +65,10 @@ body {
 .nav-actions { display: flex; align-items: center; gap: 10px; }
 .divider { width: 1px; height: 20px; background: var(--border); margin: 0 6px; }
 
-.app-footer { margin-top: 40px; padding: 20px 0; color: var(--text-secondary); font-size: 14px; }
-.footer-inner { border-top: 1px dashed var(--border); padding-top: 10px; }
+.app-footer { margin-top: 40px; padding: 20px 0; color: var(--text-secondary); font-size: 14px; text-align: center; }
+.footer-inner { border-top: 1px dashed var(--border); padding-top: 20px; }
+.footer-inner p { margin: 0; }
+.footer-status { font-size: 13px; color: var(--text-tertiary); margin-top: 8px; }
 
 #app-root { padding: 24px 0 12px; }
 
