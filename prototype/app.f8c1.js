@@ -241,7 +241,7 @@ function renderEvents(root) {
           <div class="chip ${allActive? 'active':''}" id="flt-all">All</div>
         </div>
         <div>
-          <select id="flt-type" class="btn outline" style="padding:8px 10px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:#0f172a;">
+          <select id="flt-type" class="btn outline">
             ${renderTypeOption('', 'Event Type: All', f.type)}
             ${renderTypeOption('trade','Trade', f.type)}
             ${renderTypeOption('hackathon','Hackathon', f.type)}
@@ -253,7 +253,7 @@ function renderEvents(root) {
           </select>
         </div>
         <div>
-          <select id="flt-status" class="btn outline" style="padding:8px 10px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:#0f172a;">
+          <select id="flt-status" class="btn outline">
             ${renderStatusOption('', 'Status: All', f.status)}
             ${renderStatusOption('ongoing','Ongoing', f.status)}
             ${renderStatusOption('upcoming','Upcoming', f.status)}
@@ -261,7 +261,7 @@ function renderEvents(root) {
           </select>
         </div>
         <div>
-          <select id="flt-sort" class="btn outline" style="padding:8px 10px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:#0f172a;">
+          <select id="flt-sort" class="btn outline">
             ${renderSortOption('active','Sort: Active', f.sort)}
             ${renderSortOption('trending','Trending', f.sort)}
           </select>
@@ -818,6 +818,7 @@ function wireHeader() {
   });
   const ce = document.getElementById('btn-create-event');
   if (ce) ce.addEventListener('click', openCreateEventModal);
+  document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
 
   document.querySelectorAll("[data-close-modal]").forEach((el) => { el.addEventListener("click", () => toggleModal(el.getAttribute("data-close-modal"), false)); });
 
@@ -1067,11 +1068,34 @@ function getInviteStats(eventId){
 function myReferralKey(){ return state.user.connected ? shortAddr(state.user.address) : 'guest'; }
 async function copyText(text){ try { if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(text); } else { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); } showToast('Link copied'); } catch(e){ showToast('Copy failed'); } }
 
+// Theme switching
+function applyTheme(theme) {
+  const isDark = theme === 'dark';
+  document.body.classList.toggle('dark', isDark);
+  const btn = document.getElementById('theme-toggle');
+  if(btn) btn.textContent = isDark ? '☀️' : '🌙';
+  try { localStorage.setItem('midan:theme', theme); } catch(e){}
+}
+function toggleTheme() {
+  const current = document.body.classList.contains('dark') ? 'dark' : 'light';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+function initTheme() {
+  try {
+    const saved = localStorage.getItem('midan:theme');
+    // Set 'dark' as the default theme if no preference is saved.
+    applyTheme(saved || 'dark');
+  } catch(e) {
+    applyTheme('dark');
+  }
+}
+
 window.addEventListener("hashchange", render);
 
 // Init
 seedMock();
 loadReactions();
 loadInvites();
+initTheme();
 wireHeader();
 render(); 
