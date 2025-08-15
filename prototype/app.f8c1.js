@@ -235,34 +235,37 @@ function renderEvents(root) {
 
     <section class="filters-bar">
       <div class="search"><input id="flt-q" placeholder="Search events" value="${escapeHtml(f.search)}" /></div>
-      <div class="chips">
-        <div class="chip ${allActive? 'active':''}" id="flt-all">All</div>
-      </div>
-      <div>
-        <select id="flt-type" class="btn outline" style="padding:8px 10px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:#0f172a;">
-          ${renderTypeOption('', 'Event Type: All', f.type)}
-          ${renderTypeOption('trade','Trade', f.type)}
-          ${renderTypeOption('hackathon','Hackathon', f.type)}
-          ${renderTypeOption('official','Official', f.type)}
-          ${renderTypeOption('alpha','Alpha Finding', f.type)}
-          ${renderTypeOption('competition','Competition', f.type)}
-          ${renderTypeOption('launchpad','Launchpad', f.type)}
-          ${renderTypeOption('quest','Quest', f.type)}
-        </select>
-      </div>
-      <div>
-        <select id="flt-status" class="btn outline" style="padding:8px 10px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:#0f172a;">
-          ${renderStatusOption('', 'Status: All', f.status)}
-          ${renderStatusOption('ongoing','Ongoing', f.status)}
-          ${renderStatusOption('upcoming','Upcoming', f.status)}
-          ${renderStatusOption('completed','Completed', f.status)}
-        </select>
-      </div>
-      <div>
-        <select id="flt-sort" class="btn outline" style="padding:8px 10px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:#0f172a;">
-          ${renderSortOption('active','Sort: Active', f.sort)}
-          ${renderSortOption('trending','Trending', f.sort)}
-        </select>
+      <button class="btn outline" id="flt-toggle" aria-expanded="false" aria-controls="flt-collapsible">Filters</button>
+      <div id="flt-collapsible" class="flt-collapsible-group">
+        <div class="chips">
+          <div class="chip ${allActive? 'active':''}" id="flt-all">All</div>
+        </div>
+        <div>
+          <select id="flt-type" class="btn outline" style="padding:8px 10px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:#0f172a;">
+            ${renderTypeOption('', 'Event Type: All', f.type)}
+            ${renderTypeOption('trade','Trade', f.type)}
+            ${renderTypeOption('hackathon','Hackathon', f.type)}
+            ${renderTypeOption('official','Official', f.type)}
+            ${renderTypeOption('alpha','Alpha Finding', f.type)}
+            ${renderTypeOption('competition','Competition', f.type)}
+            ${renderTypeOption('launchpad','Launchpad', f.type)}
+            ${renderTypeOption('quest','Quest', f.type)}
+          </select>
+        </div>
+        <div>
+          <select id="flt-status" class="btn outline" style="padding:8px 10px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:#0f172a;">
+            ${renderStatusOption('', 'Status: All', f.status)}
+            ${renderStatusOption('ongoing','Ongoing', f.status)}
+            ${renderStatusOption('upcoming','Upcoming', f.status)}
+            ${renderStatusOption('completed','Completed', f.status)}
+          </select>
+        </div>
+        <div>
+          <select id="flt-sort" class="btn outline" style="padding:8px 10px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:#0f172a;">
+            ${renderSortOption('active','Sort: Active', f.sort)}
+            ${renderSortOption('trending','Trending', f.sort)}
+          </select>
+        </div>
       </div>
       <div class="spacer"></div>
     </section>
@@ -305,6 +308,16 @@ function renderEvents(root) {
   document.getElementById('flt-type').addEventListener('change', (e)=> { writeEventFilters({ type: e.target.value }); render(); });
   document.getElementById('flt-status').addEventListener('change', (e)=> { writeEventFilters({ status: e.target.value }); render(); });
   document.getElementById('flt-sort').addEventListener('change', (e)=> { writeEventFilters({ sort: e.target.value }); render(); });
+
+  const fltToggle = document.getElementById('flt-toggle');
+  const fltCollapse = document.getElementById('flt-collapsible');
+  if (fltToggle && fltCollapse) {
+    fltToggle.addEventListener('click', () => {
+      const isExpanded = fltToggle.getAttribute('aria-expanded') === 'true';
+      fltToggle.setAttribute('aria-expanded', !isExpanded);
+      fltCollapse.classList.toggle('open');
+    });
+  }
 }
 
 function renderTypeOption(value, label, selected){ return `<option value="${value}" ${selected===value?'selected':''}>${label}</option>`; }
