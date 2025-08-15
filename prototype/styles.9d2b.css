@@ -70,6 +70,11 @@ body {
 
 #app-root { padding: 24px 0 12px; }
 
+h1, h2, h3, .card .title, .brand-name {
+  font-family: 'Oxanium', sans-serif;
+  letter-spacing: 0.5px;
+}
+
 h1, h2, h3 { margin: 0 0 12px; }
 .subtle { color: var(--text-secondary); }
 
