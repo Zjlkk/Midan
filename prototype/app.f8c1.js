@@ -1069,7 +1069,7 @@ function applyTheme(theme) {
   const isDark = theme === 'dark';
   document.body.classList.toggle('dark', isDark);
   const btn = document.getElementById('theme-toggle');
-  if(btn) btn.textContent = isDark ? '☀️' : '🌙';
+  if(btn) btn.textContent = isDark ? '🌙' : '☀️';
   try { localStorage.setItem('midan:theme', theme); } catch(e){}
 }
 function toggleTheme() {
