@@ -378,6 +378,18 @@ h1, h2, h3 { margin: 0 0 12px; }
 
 .card .cover img.cover-img { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; display: block; filter: none; transition: filter .2s ease, transform .2s ease; }
 .card .cover img.cover-img.loading { filter: blur(8px); transform: scale(1.02); }
+.card .cover.blue { background: linear-gradient(180deg, rgba(59,130,246,0.12), rgba(147,197,253,0.12)); }
+.dark .card .cover.blue { background: linear-gradient(180deg, rgba(59,130,246,0.2), rgba(147,197,253,0.2)); }
+
+.card .cover.purple { background: linear-gradient(180deg, rgba(124,58,237,0.12), rgba(196,181,253,0.12)); }
+.dark .card .cover.purple { background: linear-gradient(180deg, rgba(124,58,237,0.2), rgba(196,181,253,0.2)); }
+
+.card .cover.green { background: linear-gradient(180deg, rgba(34,197,94,0.12), rgba(134,239,172,0.12)); }
+.dark .card .cover.green { background: linear-gradient(180deg, rgba(34,197,94,0.2), rgba(134,239,172,0.2)); }
+
+.card .cover.orange { background: linear-gradient(180deg, rgba(245,158,11,0.12), rgba(253,213,128,0.12)); }
+.dark .card .cover.orange { background: linear-gradient(180deg, rgba(245,158,11,0.2), rgba(253,213,128,0.2)); }
+
 
 /* Hairline utility */
 .hairline { border-top: 1px solid #eaeef5; margin: 12px 0; }

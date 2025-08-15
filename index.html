@@ -15,16 +15,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/prototype/styles.9d2b.css" />
     <script>
-      // Critical theme script to prevent FOUC (Flash of Unstyled Content)
-      (function() {
-        try {
-          const theme = localStorage.getItem('midan:theme') || 'dark'; // Default to dark
-          if (theme === 'dark') {
-            document.documentElement.classList.add('dark');
-          }
-        } catch (e) { /* ignore */ }
-      })();
-
       // Ensure landing on Explore Events when no hash route is present
       (function () {
         if (!location.hash || location.hash === '#' || location.hash === '#/') {

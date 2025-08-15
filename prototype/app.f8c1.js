@@ -20,11 +20,6 @@ const state = {
 state.reactions = { counts: {}, user: {} };
 state.invites = { byEvent: {} };
 
-const THEME_COLORS = [
-  ['#6366F1', '#8B5CF6'], ['#10B981', '#34D399'], ['#F59E0B', '#FBBF24'],
-  ['#EF4444', '#F87171'], ['#3B82F6', '#60A5FA'], ['#EC4899', '#F472B6']
-];
-
 function seedMock() {
   const now = Date.now();
   state.competitions = [
@@ -32,37 +27,37 @@ function seedMock() {
       "sonic-trade",
       "Sonic SVM On‑Chain Trading Competition",
       "A trading tournament hosted by Sonic SVM with a prize pool of up to $1,000,000. Form a team and climb the leaderboard.",
-      now - 1*86_400_000, now + 14*86_400_000, 'trade', ['Trading','DeFi'], THEME_COLORS[0]
+      now - 1*86_400_000, now + 14*86_400_000, 'trade', ['Trading','DeFi']
     ),
     mkEvent(
       "sonic-hack",
       "Sonic SVM Internal Hackathon Grouping",
       "Team up for the Sonic SVM internal hackathon. Find collaborators and build fast.",
-      now - 2*86_400_000, now + 7*86_400_000, 'hackathon', ['Hackathon','Builders'], THEME_COLORS[1]
+      now - 2*86_400_000, now + 7*86_400_000, 'hackathon', ['Hackathon','Builders']
     ),
     mkEvent(
       "goodr-alpha",
       "Goodr — Alpha Finding",
       "Scout promising narratives and early signals on the Goodr Launchpad. Share research, validate theses, and surface Alpha.",
-      now - 5*86_400_000, now + 20*86_400_000, 'alpha', ['Launchpad','Research'], THEME_COLORS[2]
+      now - 5*86_400_000, now + 20*86_400_000, 'alpha', ['Launchpad','Research']
     ),
     mkEvent(
       "chaos-group",
       "Chaos Finance — Official Group",
       "Join the official Chaos Finance group for AMAs, product updates, and direct Q&A with the team.",
-      now - 3*86_400_000, now + 30*86_400_000, 'official', ['AMA','Community'], THEME_COLORS[3]
+      now - 3*86_400_000, now + 30*86_400_000, 'official', ['AMA','Community']
     ),
     mkEvent(
       "chillonic-otc",
       "Chillonic — OTC Group",
       "Peer‑to‑peer OTC hub for exchanging Chillonic NFTs. Find counterparties safely and coordinate trades.",
-      now - 2*86_400_000, now + 15*86_400_000, 'trade', ['NFT','OTC'], THEME_COLORS[4]
+      now - 2*86_400_000, now + 15*86_400_000, 'trade', ['NFT','OTC']
     ),
     mkEvent(
       "fomoney-gov",
       "FoMoney — Governance Event",
       "Back your favorite ticker and participate in governance decisions. Rally a team for coordinated voting.",
-      now + 1*86_400_000, now + 7*86_400_000, 'official', ['Governance','Voting'], THEME_COLORS[5]
+      now + 1*86_400_000, now + 7*86_400_000, 'official', ['Governance','Voting']
     ),
   ];
 
@@ -81,8 +76,8 @@ function seedMock() {
   state.teamsByCompetition.set("fomoney-gov", []);
 }
 
-function mkEvent(id, name, subtitle, startTs, endTs, type, tags, color) {
-  return { id, name, subtitle, startTs, endTs, type, tags, color };
+function mkEvent(id, name, subtitle, startTs, endTs, type, tags) {
+  return { id, name, subtitle, startTs, endTs, type, tags };
 }
 
 function getTeams(cid) { return state.teamsByCompetition.get(cid) || []; }
@@ -333,14 +328,25 @@ function renderEventCard(c) {
   const now = Date.now();
   const status = getEventStatus(c);
   const onload = c.banner ? "this.classList.remove('loading')" : "";
+  const typeClass = (
+    c.type==='trade' || c.type==='competition' ? 'type-blue' :
+    c.type==='hackathon' || c.type==='alpha' ? 'type-purple' :
+    c.type==='official' || c.type==='launchpad' ? 'type-green' :
+    'type-orange'
+  );
+  const coverClass = (
+    c.type==='trade' || c.type==='competition' ? 'blue' :
+    c.type==='hackathon' || c.type==='alpha' ? 'purple' :
+    c.type==='official' || c.type==='launchpad' ? 'green' :
+    'orange'
+  );
   const icon = c.type==='trade' ? '📈' : c.type==='hackathon' ? '🛠️' : c.type==='official' ? '🏛️' : c.type==='alpha' ? '🔎' : c.type==='launchpad' ? '🚀' : '🎯';
   const teams = getTeams(c.id);
   const teamCount = teams.length;
   const memberCount = teams.reduce((acc,t)=> acc + t.members.length, 0);
   const tagPills = (c.tags||[]).slice(0,2).map(t=> `<span class=\"tag-pill\" data-type-filter=\"${c.type}\">${t}</span>`).join('');
   const more = (c.tags||[]).length>2 ? `<span class=\"tag-pill\" title=\"More\">+${(c.tags||[]).length-2}</span>`: '';
-  const coverStyle = c.color ? `background: linear-gradient(45deg, ${c.color[0]}, ${c.color[1]})` : '';
-  const coverHtml = c.banner ? `<div class=\"cover\"><img loading=\"lazy\" class=\"cover-img loading\" src=\"${escapeHtml(c.banner)}\" alt=\"${escapeHtml(c.name)}\" onload=\"${onload}\"/></div>` : `<div class=\"cover\" style=\"${coverStyle}\"></div>`;
+  const coverHtml = c.banner ? `<div class=\"cover\"><img loading=\"lazy\" class=\"cover-img loading\" src=\"${escapeHtml(c.banner)}\" alt=\"${escapeHtml(c.name)}\" onload=\"${onload}\"/></div>` : `<div class=\"cover ${coverClass}\"></div>`;
   const dom = getDominantReaction(c.id);
   let mood = '';
   if (dom.count > 0) {
@@ -356,7 +362,7 @@ function renderEventCard(c) {
       <div class="subtle">${escapeHtml(c.subtitle)}</div>
       <div class="meta"><span class="badge">${status}</span>${mood?` ${mood}`:''}</div>
       <div class="tag-row">
-        <span class="type-pill" style="background: linear-gradient(45deg, ${c.color[0]}, ${c.color[1]});">${icon} ${labelForType(c.type)}</span>
+        <span class="type-pill ${typeClass}"><span class="icon">${icon}</span>${labelForType(c.type)}</span>
         ${tagPills}${more}
       </div>
       <div class="actions" style="margin-top:8px; opacity:1; transform:none;">
@@ -852,8 +858,7 @@ function wireHeader() {
       const id = `${type}-${Math.random().toString(36).slice(2,7)}`;
       const startTs = start ? new Date(start).getTime() : Date.now();
       const endTs = end ? new Date(end).getTime() : (Date.now() + 7*86_400_000);
-      const randomColor = THEME_COLORS[Math.floor(Math.random() * THEME_COLORS.length)];
-      const evt = mkEvent(id, name, subtitle, startTs, endTs, type, tagArr, randomColor);
+      const evt = mkEvent(id, name, subtitle, startTs, endTs, type, tagArr);
       if (window._evtBannerObjectUrl) evt.banner = window._evtBannerObjectUrl; // fallback if set globally
       if (capMode === 'fixed') evt.teamCap = Math.max(1, Number(capNumRaw||'0'));
       state.competitions.unshift(evt);
@@ -1070,27 +1075,23 @@ async function copyText(text){ try { if (navigator.clipboard && navigator.clipbo
 // Theme switching
 function applyTheme(theme) {
   const isDark = theme === 'dark';
-  document.documentElement.classList.toggle('dark', isDark);
+  document.body.classList.toggle('dark', isDark);
   const btn = document.getElementById('theme-toggle');
   if(btn) btn.textContent = isDark ? '🌙' : '☀️';
-  try {
-    if (isDark) {
-      localStorage.setItem('midan:theme', 'dark');
-    } else {
-      localStorage.removeItem('midan:theme');
-    }
-  } catch(e){}
+  try { localStorage.setItem('midan:theme', theme); } catch(e){}
 }
 function toggleTheme() {
-  const current = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+  const current = document.body.classList.contains('dark') ? 'dark' : 'light';
   applyTheme(current === 'dark' ? 'light' : 'dark');
 }
 function initTheme() {
-  // Theme is now applied by the inline script in the head.
-  // This function just needs to set the correct icon.
-  const isDark = document.documentElement.classList.contains('dark');
-  const btn = document.getElementById('theme-toggle');
-  if(btn) btn.textContent = isDark ? '🌙' : '☀️';
+  try {
+    const saved = localStorage.getItem('midan:theme');
+    // Set 'dark' as the default theme if no preference is saved.
+    applyTheme(saved || 'dark');
+  } catch(e) {
+    applyTheme('dark');
+  }
 }
 
 window.addEventListener("hashchange", render);
