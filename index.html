@@ -4,11 +4,24 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Midan</title>
+    <meta property="og:title" content="Midan — On‑chain Arena for Teams" />
+    <meta property="og:description" content="Create events, form teams, chat by wallet, and launch assets together on Sonic SVM." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/prototype/og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="/prototype/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Load styles from /prototype -->
     <link rel="stylesheet" href="/prototype/styles.9d2b.css" />
+    <script>
+      // Ensure landing on Explore Events when no hash route is present
+      (function () {
+        if (!location.hash || location.hash === '#' || location.hash === '#/') {
+          location.replace('#/events');
+        }
+      })();
+    </script>
   </head>
   <body>
     <header class="app-header">
@@ -24,6 +37,8 @@
           <button id="btn-create-event" class="btn primary">Create Event</button>
           <button id="btn-my-team" class="btn secondary">My Team</button>
           <button id="btn-connect" class="btn outline">Connect Wallet</button>
+          <div class="divider"></div>
+          <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme">🌙</button>
         </nav>
       </div>
     </header>
@@ -175,12 +190,6 @@
 
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-    <!-- Load app logic from /prototype -->
     <script src="/prototype/app.f8c1.js"></script>
-    <script>
-      // If no hash route specified, the app's router defaults to "/events".
-      // Ensure hash exists on first load for consistency.
-      if (!location.hash) { location.hash = '#/events'; }
-    </script>
   </body>
 </html> 

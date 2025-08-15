@@ -906,9 +906,6 @@ function updateReactionDom(eventId){
     const isSel = selected === emoji;
     const span = btn.querySelector('span'); if (span) span.textContent = String(count);
     btn.setAttribute('aria-pressed', isSel ? 'true' : 'false');
-    btn.style.borderColor = isSel ? '#6366f1' : '';
-    btn.style.background = isSel ? '#eef2ff' : '';
-    btn.style.transform = isSel ? 'scale(1.04)' : '';
   });
   return true;
 }
@@ -1005,10 +1002,9 @@ function renderReactionButton(eventId, emoji){
   const counts = getReactionCounts(eventId);
   const selected = getUserReaction(eventId) === emoji;
   const count = counts[emoji] || 0;
-  const base = selected ? "border-color:#6366f1;background:#eef2ff;transform:scale(1.04);" : "opacity:0.9;";
   const dis = state.user.connected ? "" : "opacity:0.55;cursor:not-allowed;";
   const title = state.user.connected ? "" : "Connect wallet to react";
-  return `<button class=\"btn outline\" data-react=\"${emoji}\" data-evt=\"${String(eventId)}\" aria-pressed=\"${selected?'true':'false'}\" title=\"${title}\" style=\"padding:4px 8px;border-radius:10px;${base}${dis}\">${emoji} <span>${count}</span></button>`;
+  return `<button class="btn outline reaction-btn" data-react="${emoji}" data-evt="${String(eventId)}" aria-pressed="${selected?'true':'false'}" title="${title}" style="${dis}">${emoji} <span>${count}</span></button>`;
 }
 
 
