@@ -34,7 +34,7 @@ body {
   --shadow-2: 0 3px 12px rgba(15, 23, 42, 0.08);
 }
 
-.dark {
+html.dark {
   /* Dark Theme */
   --bg-primary: #000000;
   --bg-surface: #1a1a1a;

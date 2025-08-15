@@ -1075,23 +1075,27 @@ async function copyText(text){ try { if (navigator.clipboard && navigator.clipbo
 // Theme switching
 function applyTheme(theme) {
   const isDark = theme === 'dark';
-  document.body.classList.toggle('dark', isDark);
+  document.documentElement.classList.toggle('dark', isDark);
   const btn = document.getElementById('theme-toggle');
   if(btn) btn.textContent = isDark ? '🌙' : '☀️';
-  try { localStorage.setItem('midan:theme', theme); } catch(e){}
+  try {
+    if (isDark) {
+      localStorage.setItem('midan:theme', 'dark');
+    } else {
+      localStorage.removeItem('midan:theme'); // Remove for light theme
+    }
+  } catch(e){}
 }
 function toggleTheme() {
-  const current = document.body.classList.contains('dark') ? 'dark' : 'light';
+  const current = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
   applyTheme(current === 'dark' ? 'light' : 'dark');
 }
 function initTheme() {
-  try {
-    const saved = localStorage.getItem('midan:theme');
-    // Set 'dark' as the default theme if no preference is saved.
-    applyTheme(saved || 'dark');
-  } catch(e) {
-    applyTheme('dark');
-  }
+  // Theme is now applied by the inline script in the head.
+  // This function just needs to set the correct icon.
+  const isDark = document.documentElement.classList.contains('dark');
+  const btn = document.getElementById('theme-toggle');
+  if(btn) btn.textContent = isDark ? '🌙' : '☀️';
 }
 
 window.addEventListener("hashchange", render);
