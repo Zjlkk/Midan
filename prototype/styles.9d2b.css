@@ -70,7 +70,11 @@ body {
 
 #app-root { padding: 24px 0 12px; }
 
-h1, h2, h3, .card .title, .brand-name {
+h1, h2, h3, .card .title {
+  /* These will now inherit the 'Inter' font from the body */
+  letter-spacing: -0.2px;
+}
+.brand-name {
   font-family: 'Orbitron', sans-serif;
   letter-spacing: 0.5px;
 }
