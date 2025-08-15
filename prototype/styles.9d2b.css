@@ -2,7 +2,7 @@
 html, body { height: 100%; }
 body {
   margin: 0;
-  font-family: 'Manrope', sans-serif;
+  font-family: 'Inter', sans-serif;
   color: var(--text-primary);
   background: var(--bg-primary);
   transition: color .2s ease, background-color .2s ease;
