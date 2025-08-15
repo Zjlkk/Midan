@@ -427,7 +427,6 @@ function renderCompetitionOverview(root, cid) {
           <span class="badge">${status}</span>
           <span class="badge">${formatDateRange(c.startTs, c.endTs)}</span>
         </div>
-        <p class="subtle" style="margin-top:8px;">${escapeHtml(c.subtitle)}</p>
       </div>
       <div class="header-cta">
         <button class="btn primary" id="ui-create">Create Team</button>
