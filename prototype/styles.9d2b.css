@@ -142,8 +142,21 @@ h1, h2, h3 { margin: 0 0 12px; }
 
 .segmented { display: inline-flex; gap: 16px; }
 .field { display: grid; gap: 6px; margin: 10px 0; }
-.field input[type="text"], .field input[type="number"] { padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background-color: var(--bg-surface); color: var(--text-primary); }
-.field textarea { padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); resize: vertical; background-color: var(--bg-surface); color: var(--text-primary); }
+.field input[type="text"],
+.field input[type="number"],
+.field input[type="date"],
+.field textarea,
+.share input {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+}
+.dark .field input[type="date"] {
+  color-scheme: dark;
+}
+.field textarea { resize: vertical; }
 .field small.hint { color: var(--text-secondary); }
 
 .kv { display: grid; grid-template-columns: 140px 1fr; gap: 8px; align-items: center; }
