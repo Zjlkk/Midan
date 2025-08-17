@@ -206,27 +206,26 @@ function renderEvents(root) {
     <section class="intro">
       <div class="intro-grid">
         <div>
-          <h2>Midan — On‑chain Arena for Teams</h2>
+          <h2 class="hero-title brand-highlight">Midan — On‑chain Arena for Teams</h2>
           <div class="subtitle">A social, team‑first hub where you create events, form teams, chat natively by wallet, and launch on‑chain assets together.</div>
           <div class="bullets">
-            <div class="item">✅ On‑chain events & membership</div>
-            <div class="item">👥 Team chat & collaboration</div>
-            <div class="item">🚀 Group launches made simple</div>
+            <div class="item">
+              <span class="bullet-icon chain"></span>
+              On‑chain events & membership
+            </div>
+            <div class="item">
+              <span class="bullet-icon chat"></span>
+              Team chat & collaboration
+            </div>
+            <div class="item">
+              <span class="bullet-icon launch"></span>
+              Group launches made simple
+            </div>
           </div>
         </div>
         <div>
           <div class="visual">
-            <svg width="320" height="160" viewBox="0 0 320 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <defs>
-                <linearGradient id="gStatic" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stop-color="#6366F1"/>
-                  <stop offset="100%" stop-color="#06B6D4"/>
-                </linearGradient>
-              </defs>
-              <path d="M10,120 C60,40 170,40 310,120" stroke="url(#gStatic)" stroke-width="1.6" stroke-linecap="round" opacity="0.95"/>
-              <path d="M10,110 C80,30 190,30 310,110" stroke="url(#gStatic)" stroke-width="1.6" stroke-linecap="round" opacity="0.85"/>
-              <path d="M10,130 C100,50 210,50 310,130" stroke="url(#gStatic)" stroke-width="1.6" stroke-linecap="round" opacity="0.6"/>
-            </svg>
+            <img src="hero-visual.png" alt="Midan Arena Visual" width="320" height="160" style="border-radius: 12px; object-fit: cover;">
             <div class="visual-caption">On‑chain sync, team signals</div>
           </div>
         </div>

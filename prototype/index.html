@@ -3,18 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Team Trading Competition — Prototype</title>
+    <title>Midan</title>
     <meta property="og:title" content="Midan — On‑chain Arena for Teams" />
     <meta property="og:description" content="Create events, form teams, chat by wallet, and launch assets together on Sonic SVM." />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="/prototype/og.png" />
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="icon" href="/prototype/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.9d2b.css" />
-    <link rel="stylesheet" href="/styles.9d2b.css" />
+    <script>
+      // Critical theme script to prevent FOUC (Flash of Unstyled Content)
+      (function() {
+        try {
+          const theme = localStorage.getItem('midan:theme') || 'dark'; // Default to dark
+          if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (e) { /* ignore */ }
+      })();
+    </script>
     <script>
       // Ensure landing on Explore Events when no hash route is present
       (function () {
@@ -28,7 +38,8 @@
     <header class="app-header">
       <div class="container header-inner">
         <div class="brand" role="button" tabindex="0" id="nav-home">
-          <span class="brand-logo">⚡</span>
+          <img src="logo-dark.png" alt="Midan Logo" class="brand-logo dark" width="36" height="36">
+          <img src="logo-light.png" alt="Midan Logo" class="brand-logo light" width="36" height="36">
           <div class="brand-text">
             <div class="brand-name">Midan</div>
             <div class="brand-sub">on Sonic SVM</div>
@@ -39,7 +50,7 @@
           <button id="btn-my-team" class="btn secondary">My Team</button>
           <button id="btn-connect" class="btn outline">Connect Wallet</button>
           <div class="divider"></div>
-          <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme">🌙</button>
+          <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme"></button>
         </nav>
       </div>
     </header>
@@ -48,7 +59,8 @@
 
     <footer class="app-footer">
       <div class="container footer-inner">
-        <span>Prototype • MVP UX only • No blockchain</span>
+        <p>Prototype • MVP UX</p>
+        <p class="footer-status">All programs and SDKs have been developed and are waiting for integration.</p>
       </div>
     </footer>
 
@@ -191,7 +203,6 @@
 
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-    <script src="app.f8c1.js"></script>
-    <script src="/app.f8c1.js"></script>
+    <script src="app.f8c1.js" defer></script>
   </body>
 </html> 
