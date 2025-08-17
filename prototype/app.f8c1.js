@@ -26,14 +26,14 @@ function seedMock() {
     mkEvent(
       "sonic-trade",
       "Sonic SVM On‑Chain Trading Competition",
-      "A trading tournament hosted by Sonic SVM with a prize pool of up to $1,000,000. Form a team and climb the leaderboard.",
-      now - 1*86_400_000, now + 14*86_400_000, 'trade', ['Trading','DeFi']
+      "Join the SVM On-Chain Trading Competition! Trade SONIC, earn rewards, and boost the SVM and Solana ecosystems. Up to $1,000,000 in rewards - register now!",
+      now - 1*86_400_000, now + 14*86_400_000, 'trade', ['Trading','DeFi'], 'banner-trading-competition.png'
     ),
     mkEvent(
-      "sonic-hack",
-      "Sonic SVM Internal Hackathon Grouping",
-      "Team up for the Sonic SVM internal hackathon. Find collaborators and build fast.",
-      now - 2*86_400_000, now + 7*86_400_000, 'hackathon', ['Hackathon','Builders']
+      "sonic-liquidity",
+      "Sonic Liquidity Rush - Evaluation Phase",
+      "Join the SONIC LIQUIDITY RUSH evaluation phase! Provide liquidity, earn rewards, and help bootstrap the Sonic ecosystem during this critical launch period.",
+      now - 2*86_400_000, now + 7*86_400_000, 'official', ['Liquidity','Launch'], 'banner-liquidity-rush.png'
     ),
     mkEvent(
       "goodr-alpha",
@@ -69,15 +69,15 @@ function seedMock() {
   ];
 
   state.teamsByCompetition.set("sonic-trade", teams_trade);
-  state.teamsByCompetition.set("sonic-hack", []);
+  state.teamsByCompetition.set("sonic-liquidity", []);
   state.teamsByCompetition.set("goodr-alpha", []);
   state.teamsByCompetition.set("chaos-group", []);
   state.teamsByCompetition.set("chillonic-otc", []);
   state.teamsByCompetition.set("fomoney-gov", []);
 }
 
-function mkEvent(id, name, subtitle, startTs, endTs, type, tags) {
-  return { id, name, subtitle, startTs, endTs, type, tags };
+function mkEvent(id, name, subtitle, startTs, endTs, type, tags, banner = null) {
+  return { id, name, subtitle, startTs, endTs, type, tags, banner };
 }
 
 function getTeams(cid) { return state.teamsByCompetition.get(cid) || []; }
