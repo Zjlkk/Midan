@@ -39,7 +39,7 @@ function seedMock() {
       "goodr-alpha",
       "Goodr — Alpha Finding",
       "Scout promising narratives and early signals on the Goodr Launchpad. Share research, validate theses, and surface Alpha.",
-      now - 5*86_400_000, now + 20*86_400_000, 'alpha', ['Launchpad','Research']
+      now - 5*86_400_000, now + 20*86_400_000, 'alpha', ['Launchpad','Research'], 'banner-goodr-alpha.png'
     ),
     mkEvent(
       "chaos-group",
